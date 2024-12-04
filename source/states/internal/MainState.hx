@@ -12,4 +12,9 @@ class MainState extends FlxState
     {
         Transition.instance.transitionOut();
     }
+
+    override function startOutro(onOutroComplete:Void->Void)
+    {
+        Transition.instance.transitionIn(onOutroComplete);
+    }
 }

@@ -14,7 +14,7 @@ class Preloader extends FlxBasePreloader
 			Assets.font(font);
 		}
 
-		Main.game = new FlxGame(0, 0, () -> new states.play.PlayState());
+		Main.game = new FlxGame(0, 0, () -> new InitState());
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());

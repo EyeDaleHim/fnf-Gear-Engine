@@ -40,12 +40,10 @@ class Transition extends FlxBasic
 		_matrix = new FlxMatrix();
 		_colorTransform = new ColorTransform();
 
-		_colorTransform.redOffset = -255;
-		_colorTransform.greenOffset = -255;
-		_colorTransform.blueOffset = -255; 
+        color = 0xFF000000;
 	}
 
-	public function transitionIn(duration:Float = 0.5, ?camPersist:Bool = true, ?finishCallback:Void->Void):Void
+	public function transitionIn(duration:Float = 0.5, ?finishCallback:Void->Void):Void
 	{
 		var cam:FlxCamera = startCamera();
 
@@ -81,6 +79,9 @@ class Transition extends FlxBasic
 		_tween = FlxTween.tween(this, {_y: FlxG.height + (FlxG.height * 0.1)}, duration, {
 			onComplete: (_) ->
 			{
+                camera = FlxG.camera;
+                FlxG.cameras.remove(cam, true);
+
 				if (finishCallback != null)
 					finishCallback();
 			}

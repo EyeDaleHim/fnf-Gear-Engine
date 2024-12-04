@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxGame;
 import openfl.display.Sprite;
-
 import objects.engine.DebugInfo;
 
 class Main extends Sprite
@@ -16,9 +15,14 @@ class Main extends Sprite
 
 		FlxGraphic.defaultPersist = true;
 
+		PageState.pageInstances.set('menu', new MenuState());
+
 		addChild(game);
 		addChild(debugInfo);
 
-		Transition.instance.color = 0xFFFFFFFF;
+		FlxTween.num(0.0, 1.0, (v) ->
+		{
+			debugInfo.alpha = v;
+		});
 	}
 }

@@ -75,6 +75,8 @@
 
 	<!-- _________________________________ Custom _______________________________ -->
 
+	<haxeflag name="--macro backend.macros.AssetsMacro.build()"/>
+
 	<prebuild haxe="build/Prebuild.hx"/>
 	<postbuild haxe="build/Postbuild.hx"/>
 

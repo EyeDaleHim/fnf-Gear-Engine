@@ -101,7 +101,7 @@ class Assets
 		return null;
 	}
 
-	public static function image(path:String, ?cache:Bool = false)
+	public static function image(path:String, ?cache:Bool = true):FlxGraphic
 	{
 		var formattedPath:String = imagePath(path);
 
@@ -113,16 +113,27 @@ class Assets
 		else if (exists(formattedPath))
 		{
 			bitmap = BitmapData.fromBytes(bytes(formattedPath));
-			graphic = FlxGraphic.fromBitmapData(bitmap, formattedPath);
+			graphic = FlxGraphic.fromBitmapData(bitmap, formattedPath, false);
+			graphic.destroyOnNoUse = false;
 
 			if (cache)
-				FlxG.bitmap.addGraphic(graphic);
+				FlxG.bitmap.add(graphic, formattedPath);
 		}
 
 		return graphic;
 	}
 
-	public static function sound(path:String, ?cache:Bool = false)
+	public static function frames(path:String):FlxAtlasFrames
+	{
+		var xmlPath:String = imagePath(path).replace('.png', '.xml');
+
+		if (exists(path, imagePath) && exists(xmlPath))
+			return FlxAtlasFrames.fromSparrow(image(path), contents(xmlPath));
+
+		return null;
+	}
+
+	public static function sound(path:String, ?cache:Bool = false):Sound
 	{
 		var formattedPath:String = soundPath(path);
 

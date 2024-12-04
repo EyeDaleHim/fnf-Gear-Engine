@@ -1,8 +1,10 @@
 package objects.engine;
 
+import flixel.util.FlxStringUtil;
 import openfl.events.Event;
 import openfl.text.TextFormat;
 import openfl.text.TextField;
+import openfl.system.System;
 
 class DebugInfo extends TextField
 {
@@ -34,8 +36,13 @@ class DebugInfo extends TextField
         var elapsed = currentTime - _lastTime;
 
         if (elapsed >= 1000) {
+			var buf:StringBuf = new StringBuf();
             var fps:Float = (_frameCount / elapsed) * 1000;
-            text = "FPS: " + Std.int(fps);
+			buf.add('FPS: ${Std.int(fps)}');
+			buf.add('\n');
+            buf.add('MEM: ${FlxStringUtil.formatBytes(System.totalMemory)}');
+			text = buf.toString();
+			buf = null;
             _frameCount = 0;
             _lastTime = currentTime;
         }
