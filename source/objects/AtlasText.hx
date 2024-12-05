@@ -17,7 +17,8 @@ class AtlasText extends FlxObject
 	public var ignoreLowercase(default, set):Bool = true;
 	public var text(default, set):String = "";
 
-	public var spacing:Int = 32; // by pixel
+	public var spaceWidth(default, set):Int = 32; // by pixel
+	public var charWidthPad(default, set):Int = 1;
 
 	public var antialiasing:Bool = false;
 
@@ -87,7 +88,7 @@ class AtlasText extends FlxObject
 				if (render.isSpace || render.isNewLine)
 				{
 					if (render.isSpace)
-						_spaceOffset += spacing;
+						_spaceOffset += spaceWidth;
 					continue;
 				}
 
@@ -98,9 +99,9 @@ class AtlasText extends FlxObject
 				_matrix.translate(_point.x, _point.y);
 
 				_matrix.translate(_spaceOffset, 0.0);
-				_matrix.translate(_size.width, 0.0);
+				_matrix.translate(_size.width, height - renderFrame.sourceSize.y);
 
-				_size.width += renderFrame.sourceSize.x;
+				_size.width += renderFrame.sourceSize.x + charWidthPad;
 				_size.height = Math.max(renderFrame.sourceSize.y, _size.height);
 
 				drawItem.addQuad(renderFrame, _matrix, colorTransform);
@@ -182,8 +183,8 @@ class AtlasText extends FlxObject
 
 	private function calculateLineHeight():Void {}
 
-	private function calculateSize():Void 
-    {
+	private function calculateSize():Void
+	{
 		setSize(12, 20);
 
 		var positionHelper:Float = 0.0;
@@ -191,8 +192,8 @@ class AtlasText extends FlxObject
 		var heightHelper:Float = 0.0;
 		var lineHeight:Float = 0.0;
 
-        for (render in _renderList)
-        {
+		for (render in _renderList)
+		{
 			if (render.isNewLine)
 			{
 				positionHelper = 0.0;
@@ -201,29 +202,45 @@ class AtlasText extends FlxObject
 			}
 			if (render.isSpace)
 			{
-				positionHelper += spacing;
+				positionHelper += spaceWidth;
 				continue;
 			}
 
-            var biggestSize:FlxPoint = FlxPoint.get();
+			var biggestSize:FlxPoint = FlxPoint.get();
 			for (frame in render.list)
-				biggestSize.set(Math.max(biggestSize.x, frame.sourceSize.x), Math.max(biggestSize.y, frame.sourceSize.y));
+				biggestSize.set(Math.max(biggestSize.x, frame.sourceSize.x + charWidthPad), Math.max(biggestSize.y, frame.sourceSize.y));
 
 			positionHelper += biggestSize.x;
-			lineHeight = biggestSize.y;
+			lineHeight = Math.max(lineHeight, biggestSize.y);
 
 			biggestSize.put();
-        }
+		}
 
 		setSize(positionHelper, heightHelper + lineHeight);
-    }
+	}
 
 	function get_graphic():FlxGraphic
 	{
 		return _atlas.parent;
 	}
 
-	function set_ignoreLowercase(value:Bool)
+	function set_spaceWidth(value:Int):Int
+	{
+		this.spaceWidth = value;
+		calculateSize();
+
+		return value;
+	}
+
+	function set_charWidthPad(value:Int):Int
+	{
+		this.charWidthPad = value;
+		calculateSize();
+
+		return value;
+	}
+
+	function set_ignoreLowercase(value:Bool):Bool
 	{
 		this.ignoreLowercase = value;
 		updateTextRender();
@@ -232,7 +249,7 @@ class AtlasText extends FlxObject
 		return value;
 	}
 
-	function set_bold(value:Bool)
+	function set_bold(value:Bool):Bool
 	{
 		this.bold = value;
 		updateTextRender();
@@ -241,7 +258,7 @@ class AtlasText extends FlxObject
 		return value;
 	}
 
-	function set_text(text:String)
+	function set_text(text:String):String
 	{
 		this.text = text;
 		updateTextRender();
