@@ -1,10 +1,11 @@
 package;
 
+import openfl.Lib;
 import flixel.FlxGame;
-import openfl.display.Sprite;
+import openfl.display.DisplayObjectContainer;
 import objects.engine.DebugInfo;
 
-class Main extends Sprite
+class Main extends DisplayObjectContainer
 {
 	public static var game:FlxGame;
 	public static var debugInfo:DebugInfo;
@@ -17,8 +18,8 @@ class Main extends Sprite
 
 		PageState.pageInstances.set('menu', new MenuState());
 
-		addChild(game);
-		addChild(debugInfo);
+		Lib.current.addChild(game);
+		Lib.current.addChild(debugInfo);
 
 		FlxTween.num(0.0, 1.0, (v) ->
 		{

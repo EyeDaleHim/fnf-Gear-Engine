@@ -1,14 +1,16 @@
 package objects.engine;
 
 import flixel.util.FlxStringUtil;
+import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.text.TextFormat;
 import openfl.text.TextField;
 import openfl.system.System;
 
-class DebugInfo extends TextField
+class DebugInfo extends Sprite
 {
-	static final updateTimer:Int = 200;
+	public var textField:TextField;
+	public var outlineTextField:TextField;
 
 	public var curFPS:Int = 0;
 
@@ -19,32 +21,43 @@ class DebugInfo extends TextField
 	{
 		super();
 
-		this.x = x;
-		this.y = y;
+		textField = new TextField();
+		outlineTextField = new TextField();
 
-		defaultTextFormat = new TextFormat(Assets.fontByName('vcr'), 12, 0xFFFFFF);
-	
-		autoSize = LEFT;
+		textField.x = x;
+		textField.y = y;
+
+		outlineTextField.x = x + 1;
+		outlineTextField.y = y + 1;
+
+		textField.defaultTextFormat = new TextFormat(Assets.fontByName('vcr'), 12, 0xFFFFFF);
+		outlineTextField.defaultTextFormat = new TextFormat(Assets.fontByName('vcr'), 12, 0x000000);
+
+		textField.autoSize = outlineTextField.autoSize = LEFT;
+
+		addChild(outlineTextField);
+		addChild(textField);
 
 		addEventListener(Event.ENTER_FRAME, enterFrame);
 	}
 
 	function enterFrame(e:Event)
 	{
-        _frameCount++;
-        var currentTime = openfl.Lib.getTimer();
-        var elapsed = currentTime - _lastTime;
+		_frameCount++;
+		var currentTime = openfl.Lib.getTimer();
+		var elapsed = currentTime - _lastTime;
 
-        if (elapsed >= 1000) {
+		if (elapsed >= 1000)
+		{
 			var buf:StringBuf = new StringBuf();
-            var fps:Float = (_frameCount / elapsed) * 1000;
+			var fps:Float = (_frameCount / elapsed) * 1000;
 			buf.add('FPS: ${Std.int(fps)}');
 			buf.add('\n');
-            buf.add('MEM: ${FlxStringUtil.formatBytes(System.totalMemory)}');
-			text = buf.toString();
+			buf.add('MEM: ${FlxStringUtil.formatBytes(System.totalMemory)}');
+			textField.text = outlineTextField.text = buf.toString();
 			buf = null;
-            _frameCount = 0;
-            _lastTime = currentTime;
-        }
+			_frameCount = 0;
+			_lastTime = currentTime;
+		}
 	}
 }

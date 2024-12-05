@@ -14,7 +14,7 @@ class Preloader extends FlxBasePreloader
 			Assets.font(font);
 		}
 
-		Main.game = new FlxGame(0, 0, () -> new InitState());
+		Main.game = new FlxGame(0, 0, () -> new _test.AtlasTextState());
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());

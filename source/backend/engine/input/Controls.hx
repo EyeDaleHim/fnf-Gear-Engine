@@ -1,3 +1,6 @@
 package backend.engine.input;
 
-class Controls {}
+class Controls 
+{
+    
+}

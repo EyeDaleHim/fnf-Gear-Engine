@@ -6,11 +6,21 @@ class PageState extends MainState
 
 	public var currentPage:FlxContainer;
 
+	private var _pageHelper:String;
+
 	public function new(page:String)
 	{
 		super();
 
-		switchPage(page);
+		_pageHelper = page;
+	}
+
+	override function create()
+	{
+		super.create();
+
+		Transition.instance.skipTransition();
+		switchPage(_pageHelper);
 	}
 
 	override public function update(elapsed:Float)
@@ -36,7 +46,7 @@ class PageState extends MainState
 			Transition.instance.transitionOut(() ->
 			{
 				currentPage = pageInstances.get(page);
-				Transition.instance.transitionIn();
+				Transition.instance.transitionOut();
 			});
 		}
 		else
