@@ -11,7 +11,9 @@ using flixel.util.FlxColorTransformUtil;
 
 class AtlasText extends FlxObject
 {
-	static final letterIdentity:EReg = ~/[a-z]*/ig;
+	public static final charConditions:Map<String, CharRender> = ["'" => {alignment: TOP}, "-" => {alignment: CENTER}];
+
+	public static final charOffsets:Map<String, FlxPoint> = [];
 
 	public var bold(default, set):Bool = false;
 	public var ignoreLowercase(default, set):Bool = true;
@@ -27,6 +29,7 @@ class AtlasText extends FlxObject
 
 	public var blend:BlendMode;
 
+	public var alpha(default, set):Float = 1.0;
 	public var colorTransform:ColorTransform;
 
 	public var graphic(get, null):FlxGraphic;
@@ -75,7 +78,10 @@ class AtlasText extends FlxObject
 	{
 		for (camera in cameras)
 		{
-			var isColored = (colorTransform != null && colorTransform.hasRGBMultipliers());
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+				continue;
+
+			var isColored = (colorTransform != null && colorTransform.hasRGBAMultipliers());
 			var hasColorOffsets:Bool = (colorTransform != null && colorTransform.hasRGBAOffsets());
 
 			var drawItem:FlxDrawQuadsItem = camera.startQuadBatch(graphic, isColored, hasColorOffsets, blend, antialiasing, shader);
@@ -99,7 +105,20 @@ class AtlasText extends FlxObject
 				_matrix.translate(_point.x, _point.y);
 
 				_matrix.translate(_spaceOffset, 0.0);
-				_matrix.translate(_size.width, height - renderFrame.sourceSize.y);
+				if (render.alignment != null)
+				{
+					switch (render.alignment)
+					{
+						case TOP:
+							_matrix.translate(_size.width, 0.0); // ¯\_(ツ)_/¯
+						case CENTER:
+							_matrix.translate(_size.width, (height / 2) - (renderFrame.sourceSize.y / 2));
+						case BOTTOM:
+							_matrix.translate(_size.width, height - renderFrame.sourceSize.y);
+					}
+				}
+				else
+					_matrix.tx += _size.width;
 
 				_size.width += renderFrame.sourceSize.x + charWidthPad;
 				_size.height = Math.max(renderFrame.sourceSize.y, _size.height);
@@ -116,6 +135,8 @@ class AtlasText extends FlxObject
 	override private function initVars()
 	{
 		super.initVars();
+
+		colorTransform = new ColorTransform();
 
 		_matrix = new FlxMatrix();
 	}
@@ -176,6 +197,9 @@ class AtlasText extends FlxObject
 						}
 					}
 
+					if (charConditions.exists(outputChar))
+						charRender.alignment = charConditions.get(outputChar).alignment;
+
 					_renderList.push(charRender);
 			}
 		}
@@ -217,6 +241,20 @@ class AtlasText extends FlxObject
 		}
 
 		setSize(positionHelper, heightHelper + lineHeight);
+	}
+
+	function set_alpha(value:Float)
+	{
+		if (alpha == value)
+		{
+			return value;
+		}
+		alpha = FlxMath.bound(value, 0, 1);
+
+		if (colorTransform != null)
+			colorTransform.alphaMultiplier = alpha;
+
+		return alpha;
 	}
 
 	function get_graphic():FlxGraphic
@@ -273,7 +311,16 @@ typedef CharRender =
 	var ?list:Array<FlxFrame>;
 	var ?frameNum:Int;
 
+	var ?alignment:CharAlignment;
+
 	// special cases
 	var ?isSpace:Bool;
 	var ?isNewLine:Bool;
 };
+
+enum CharAlignment
+{
+	TOP;
+	CENTER;
+	BOTTOM;
+}
