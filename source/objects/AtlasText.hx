@@ -58,16 +58,18 @@ class AtlasText extends FlxObject
 		if (animated)
 		{
 			_animTimer += elapsed * FlxG.animationTimeScale;
-			while (_animTimer >= 1 / fps)
+			var advance = Math.floor(_animTimer * fps);
+			_animTimer -= advance / fps;
+
+			if (advance != 0)
 			{
 				for (render in _renderList)
 				{
 					if (render.isSpace || render.isNewLine)
 						continue;
 
-					render.frameNum = FlxMath.wrap(render.frameNum + 1, 0, render.list.length - 1);
+					render.frameNum = FlxMath.wrap(render.frameNum + advance, 0, render.list.length - 1);
 				}
-				_animTimer -= 1 / fps;
 			}
 		}
 
