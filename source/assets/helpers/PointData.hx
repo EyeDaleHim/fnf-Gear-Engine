@@ -8,3 +8,4 @@ typedef PointData<T> =
 
 typedef IntPointData = PointData<Int>;
 typedef FloatPointData = PointData<Float>;
+typedef BoolPointData = PointData<Bool>;

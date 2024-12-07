@@ -22,8 +22,10 @@
 	<!--Desktop-specific-->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="true" />
 
-	<!--Mobile-specific-->
-	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" />
+	<!-- _________________________ Gear Engine Settings ________________________ -->
+
+	<!--If files like spritesheets and song data should be merged for consolidation-->
+	<define name="MERGE_ESSENTIALS" if="final"/>
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 

@@ -11,12 +11,21 @@ class Preloader extends FlxBasePreloader
 
 		for (font in Assets.directory('assets/fonts/'))
 		{
-			Assets.font(font);
+			if (!FileSystem.isDirectory(Path.join(['assets/fonts', font])))
+				Assets.font(font);
 		}
 
-		Main.game = new FlxGame(0, 0, () -> new _test.AtlasTextState());
+		preloadSongs();
+
+		Main.game = new FlxGame(0, 0, () -> new InitState());
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());
+	}
+
+	public function preloadSongs():Void
+	{
+		WeekList.prefetch();
+		SongList.prefetch();
 	}
 }

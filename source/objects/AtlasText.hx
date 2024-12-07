@@ -122,6 +122,12 @@ class AtlasText extends FlxObject
 				else
 					_matrix.tx += _size.width;
 
+				if (isPixelPerfectRender(camera))
+				{
+					_matrix.tx = Math.floor(_matrix.tx);
+					_matrix.ty = Math.floor(_matrix.ty);
+				}
+
 				_size.width += renderFrame.sourceSize.x + charWidthPad;
 				_size.height = Math.max(renderFrame.sourceSize.y, _size.height);
 

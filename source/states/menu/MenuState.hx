@@ -1,8 +1,9 @@
 package states.menu;
 
+import states.internal.Page;
 import flixel.effects.FlxFlicker;
 
-class MenuState extends FlxContainer
+class MenuState extends Page
 {
 	public static final itemList:Array<String> = ["story", "freeplay", "options", "donate"];
 
@@ -72,9 +73,25 @@ class MenuState extends FlxContainer
 			}
 		}
 
-		FlxG.camera.scroll.y = FlxMath.lerp(FlxG.camera.scroll.y, index * 100, FlxMath.bound(elapsed * 3.175, 0, 1));
+		camera.scroll.y = FlxMath.lerp(FlxG.camera.scroll.y, index * 100, FlxMath.bound(elapsed * 3.175, 0, 1));
 
 		super.update(elapsed);
+	}
+
+	override public function kill()
+	{
+		super.kill();
+
+		if (camera != null)
+			camera.scroll.y = 0.0;
+	}
+
+	override public function revive()
+	{
+		super.revive();
+
+		flicker.kill();
+		selected = false;
 	}
 
 	public function selectItem()
@@ -89,6 +106,8 @@ class MenuState extends FlxContainer
 		{
 			switch (itemList[index])
 			{
+				case 'freeplay':
+					switchPage('freeplay');
 				default:
 					{
 						// do something...

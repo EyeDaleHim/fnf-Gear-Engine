@@ -1,0 +1,6 @@
+{
+    "name": "week3",
+    "display": "PICO",
+    "background": "#F9CF51",
+    "order": ["pico", "philly-nice", "blammed"]
+}

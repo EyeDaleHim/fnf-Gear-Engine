@@ -16,7 +16,8 @@ class Main extends DisplayObjectContainer
 
 		FlxGraphic.defaultPersist = true;
 
-		PageState.pageInstances.set('menu', new MenuState());
+		PageState.addPage('menu', new MenuState());
+		PageState.addPage('freeplay', new FreeplayState());
 
 		Lib.current.addChild(game);
 		Lib.current.addChild(debugInfo);

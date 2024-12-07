@@ -35,8 +35,7 @@ class AssetsMacro
 				if (!sys.FileSystem.isDirectory(path))
 				{
 					var exportPath:String = Path.join([exportLocation, path]);
-					if (!sys.FileSystem.exists(exportPath) || sys.FileSystem.stat(path).ctime.getTime() > sys.FileSystem.stat(exportPath).ctime.getTime())
-						File.copy(path, exportPath);
+					File.copy(path, exportPath);
 				}
 				else
 				{

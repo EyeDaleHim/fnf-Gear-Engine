@@ -30,12 +30,18 @@ import flixel.util.FlxSignal.FlxTypedSignal;
 
 import assets.Assets;
 
+import backend.engine.SongList;
+import backend.engine.WeekList;
+
 import objects.engine.Transition;
+import objects.AtlasText;
+import objects.AtlasTextGroup;
 
 import states.internal.MainState;
 import states.internal.PageState;
 
 import states.menu.MenuState;
+import states.menu.FreeplayState;
 #end
 
 #if sys
@@ -48,5 +54,6 @@ import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Bytes;
+import haxe.io.Path;
 
 using StringTools;

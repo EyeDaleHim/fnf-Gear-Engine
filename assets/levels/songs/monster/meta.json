@@ -1,6 +1,6 @@
 {
-    "name": "tutorial",
-    "display": "Tutorial",
+    "name": "monster",
+    "display": "Monster",
     "freeplayDisplay": "gf",
     "characters": [
         "gf",
