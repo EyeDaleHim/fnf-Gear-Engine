@@ -1,0 +1,11 @@
+{
+    "name": "tutorial",
+    "display": "Tutorial",
+    "freeplayDisplay": "gf",
+    "background": "#F9CF51",
+    "characters": [
+        "gf",
+        "bf"
+    ],
+    "track": "Inst"
+}
