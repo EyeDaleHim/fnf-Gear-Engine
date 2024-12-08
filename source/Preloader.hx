@@ -19,7 +19,7 @@ class Preloader extends FlxBasePreloader
 
 		Controls.initialize();
 
-		Main.game = new FlxGame(0, 0, () -> new _test.UIContainerState());
+		Main.game = new FlxGame(0, 0, () -> new _test.UIContainerState()); // if confused, use InitState
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());
