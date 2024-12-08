@@ -78,6 +78,9 @@ class AtlasText extends FlxObject
 
 	override public function draw()
 	{
+		if (alpha == 0 || !visible || text.trim().length == 0)
+			return;
+
 		for (camera in cameras)
 		{
 			if (!camera.visible || !camera.exists || !isOnScreen(camera))

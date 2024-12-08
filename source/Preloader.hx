@@ -17,7 +17,9 @@ class Preloader extends FlxBasePreloader
 
 		preloadSongs();
 
-		Main.game = new FlxGame(0, 0, () -> new InitState());
+		Controls.initialize();
+
+		Main.game = new FlxGame(0, 0, () -> new _test.UIContainerState());
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());

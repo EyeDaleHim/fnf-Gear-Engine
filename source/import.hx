@@ -19,19 +19,27 @@ import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 
+import flixel.text.FlxText;
+
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
 import flixel.input.keyboard.FlxKey;
 
+import flixel.sound.FlxSound;
+
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import flixel.util.FlxSignal.FlxTypedSignal;
+import flixel.util.FlxSpriteUtil;
 
 import assets.Assets;
 
 import backend.engine.SongList;
 import backend.engine.WeekList;
+
+import backend.engine.input.Control;
+import backend.engine.input.Controls;
 
 import objects.engine.Transition;
 import objects.AtlasText;
@@ -42,6 +50,8 @@ import states.internal.PageState;
 
 import states.menu.MenuState;
 import states.menu.FreeplayState;
+
+using flixel.util.FlxColorTransformUtil;
 #end
 
 #if sys
@@ -57,3 +67,5 @@ import haxe.io.Bytes;
 import haxe.io.Path;
 
 using StringTools;
+using Math;
+using utils.MathUtils;

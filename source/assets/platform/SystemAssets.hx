@@ -29,6 +29,9 @@ class SystemAssets
 	public inline static function soundPath(path:String):String
 		return 'assets/sounds/$path.${FlxAssets.defaultSoundExtension}';
 
+	public inline static function levelSongTrackPath(song:String, track:String):String
+		return 'assets/levels/songs/$song/music/$track.${FlxAssets.defaultSoundExtension}';
+
 	public inline static function fontPath(path:String):String
 	{
 		return (new Path(path).ext != null ? 'assets/fonts/$path' : 'assets/fonts/$path.ttf');
@@ -67,7 +70,7 @@ class SystemAssets
 		return "";
 	}
 
-	public static function object(path:String, type:DType, ?prefix:String->String, ?cache:Bool = false, ?refresh:Bool = false):Dynamic
+	public static function object(path:String, type:DataType, ?prefix:String->String, ?cache:Bool = false, ?refresh:Bool = false):Dynamic
 	{
 		var formattedPath:String = prefix == null ? path : prefix(path);
 
@@ -136,19 +139,13 @@ class SystemAssets
 	public static function sound(path:String, ?cache:Bool = false):Sound
 	{
 		var formattedPath:String = soundPath(path);
+		return internalSound(formattedPath, cache);
+	}
 
-		var sound:Sound = null;
-
-		if (soundCache.exists(formattedPath))
-			sound = soundCache.get(formattedPath);
-		else if (exists(formattedPath))
-		{
-			sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes(formattedPath)));
-			if (cache)
-				soundCache.set(formattedPath, sound);
-		}
-
-		return (sound == null ? dummySound : sound);
+	public static function levelSongTrack(song:String, track:String, ?cache:Bool = false):Sound
+	{
+		var formattedPath:String = levelSongTrackPath(song, track);
+		return internalSound(formattedPath, cache);
 	}
 
 	public static function font(path:String):Font
@@ -174,9 +171,25 @@ class SystemAssets
 		var font:Font = font(path);
 		return (font == null ? "" : font.fontName);
 	}
+
+	private static function internalSound(finalPath:String, ?cache:Bool = false):Sound
+	{
+		var sound:Sound = null;
+
+		if (soundCache.exists(finalPath))
+			sound = soundCache.get(finalPath);
+		else if (exists(finalPath))
+		{
+			sound = Sound.fromAudioBuffer(AudioBuffer.fromBytes(bytes(finalPath)));
+			if (cache)
+				soundCache.set(finalPath, sound);
+		}
+
+		return (sound == null ? null : sound);
+	}
 }
 
-enum DType
+enum DataType
 {
 	JSON;
 	SERIALIZED;

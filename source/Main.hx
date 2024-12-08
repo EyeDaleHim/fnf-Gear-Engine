@@ -22,6 +22,8 @@ class Main extends DisplayObjectContainer
 		Lib.current.addChild(game);
 		Lib.current.addChild(debugInfo);
 
+		FlxG.console.registerClass(Assets);
+
 		FlxTween.num(0.0, 1.0, (v) ->
 		{
 			debugInfo.alpha = v;
