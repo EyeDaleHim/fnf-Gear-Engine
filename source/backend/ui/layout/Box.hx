@@ -7,11 +7,14 @@ import openfl.display.BitmapData;
 
 class Box extends Container
 {
+	public var quality(default, set):Int = 1;
 	public var cornerSize(default, set):Int;
+
 	public var cornerGraphic:FlxGraphic;
 
-	public function new(?x:Float = 0.0, ?y:Float = 0.0, width:Int = 24, height:Int = 24, cornerSize:Int = 4)
+	public function new(?x:Float = 0.0, ?y:Float = 0.0, width:Int = 24, height:Int = 24, cornerSize:Int = 4, quality:Int = 1)
 	{
+		@:bypassAccessor this.quality = quality;
 		@:bypassAccessor this.cornerSize = cornerSize;
 
 		super(x, y, width, height);
@@ -25,7 +28,7 @@ class Box extends Container
 
 	private function updateCorners():Void
 	{
-		var clampedCorners:Int = MathUtils.mini(MathUtils.maxi(0, cornerSize), (MathUtils.mini(width, height) / 2).floor());
+		var clampedCorners:Int = MathUtils.mini(MathUtils.maxi(0, cornerSize), (MathUtils.mini(width, height) / 2).floor()) * quality;
 
 		if (clampedCorners == 0)
 		{
@@ -33,8 +36,7 @@ class Box extends Container
 		}
 		else
 		{
-			var name:String = 'sliced_box_${width}_${height}_${cornerSize}_${clampedCorners}';
-			var graph:FlxGraphic = null;
+			var name:String = 'sliced_box_${width}_${height}_${quality}_${cornerSize}_${clampedCorners}';
 			if (UICache.cornerCache.exists(name))
 				cornerGraphic = UICache.cornerCache.get(name);
 			else
@@ -70,7 +72,7 @@ class Box extends Container
 					continue;
 
 				var finalPosition:FlxPoint = getTruePosition(_point, camera);
-				var cornerSize:FlxPoint = FlxPoint.weak(cornerGraphic.width, cornerGraphic.height);
+				var cornerSize:FlxPoint = FlxPoint.weak(cornerGraphic.width / quality, cornerGraphic.height / quality);
 				var whitePixel:FlxFrame = FlxG.bitmap.whitePixel;
 
 				var isColored = (colorTransform != null && colorTransform.hasRGBAMultipliers());
@@ -82,53 +84,53 @@ class Box extends Container
 				if (alpha == 1.0)
 				{
 					whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-					_matrix.scale(width / whitePixel.sourceSize.x, (height - ((cornerSize.y * scale.y) * 2)) / whitePixel.sourceSize.y);
-					_matrix.translate(finalPosition.x, finalPosition.y + (cornerSize.y * scale.y));
+					_matrix.scale((width / whitePixel.sourceSize.x), (height - (cornerSize.y * 2)) / whitePixel.sourceSize.y);
+					_matrix.translate(finalPosition.x, finalPosition.y + cornerSize.y);
 
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
 					whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-					_matrix.scale((width - ((cornerSize.x * scale.x) * 2)) / whitePixel.sourceSize.x, height / whitePixel.sourceSize.y);
-					_matrix.translate(finalPosition.x + (cornerSize.x * scale.x), finalPosition.y);
+					_matrix.scale((width - (cornerSize.x * 2)) / whitePixel.sourceSize.x, (height / whitePixel.sourceSize.y) * scale.y);
+					_matrix.translate(finalPosition.x + cornerSize.x, finalPosition.y);
 
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 				}
 				else
 				{
-                    whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-                    _matrix.scale(cornerSize.x / whitePixel.sourceSize.x, (height - ((cornerSize.y * scale.y) * 2)) / whitePixel.sourceSize.y);
+					whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
+					_matrix.scale(cornerSize.x / whitePixel.sourceSize.x, (height - (cornerSize.y * 2)) / whitePixel.sourceSize.y);
 
-                    // left
-					_matrix.translate(finalPosition.x, finalPosition.y + (cornerSize.y * scale.y));
+					// left
+					_matrix.translate(finalPosition.x, finalPosition.y + cornerSize.y);
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
-                    // right
+					// right
 					_matrix.translate(width - cornerSize.x, 0.0);
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
-                    whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-                    _matrix.scale((width - ((cornerSize.x * scale.x) * 2)) / whitePixel.sourceSize.x, cornerSize.y / whitePixel.sourceSize.y);
+					whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
+					_matrix.scale((width - (cornerSize.x * 2)) / whitePixel.sourceSize.x, cornerSize.y / whitePixel.sourceSize.y);
 
-                    // top
-                    _matrix.translate(finalPosition.x + cornerSize.x, finalPosition.y);
-                    bodyItem.addQuad(whitePixel, _matrix, colorTransform);
+					// top
+					_matrix.translate(finalPosition.x + cornerSize.x, finalPosition.y);
+					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
-                    // bottom
-                    _matrix.translate(0.0, finalPosition.y - cornerSize.y);
-                    bodyItem.addQuad(whitePixel, _matrix, colorTransform);
+					// bottom
+					_matrix.translate(0.0, finalPosition.y - cornerSize.y);
+					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
-                    // center
-                    whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-                    _matrix.scale((width - ((cornerSize.x * scale.x) * 2)) / whitePixel.sourceSize.x, (height - ((cornerSize.y * scale.y) * 2)) / whitePixel.sourceSize.y);
-                    _matrix.translate(finalPosition.x + (cornerSize.x * scale.x), finalPosition.y + (cornerSize.y * scale.y));
-                    bodyItem.addQuad(whitePixel, _matrix, colorTransform);
+					// center
+					whitePixel.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
+					_matrix.scale((width - (cornerSize.x * 2)) / whitePixel.sourceSize.x, (height - (cornerSize.y * 2)) / whitePixel.sourceSize.y);
+					_matrix.translate(finalPosition.x + cornerSize.x, finalPosition.y + cornerSize.y);
+					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 				}
 
 				var cornerQuad:FlxDrawQuadsItem = camera.startQuadBatch(cornerGraphic, isColored, hasColorOffsets, blend, antialiasing, shader);
 
 				var _corner:FlxFrame = cornerGraphic.imageFrame.frame;
 				_corner.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, false, false);
-				_matrix.scale(scale.x, scale.y);
+				_matrix.scale(1 / quality, 1 / quality);
 
 				// top-left
 				_matrix.translate(finalPosition.x, finalPosition.y);
@@ -136,17 +138,17 @@ class Box extends Container
 
 				// top-right
 				_matrix.setTo(-_matrix.b, _matrix.a, -_matrix.d, _matrix.c, _matrix.tx, _matrix.ty); // rotates by 90 angle, we keep the x and y of the matrix
-				_matrix.translate(width * scale.x, 0.0);
+				_matrix.translate(width, 0.0);
 				cornerQuad.addQuad(_corner, _matrix, colorTransform);
 
 				// bottom-right
 				_matrix.setTo(-_matrix.b, _matrix.a, -_matrix.d, _matrix.c, _matrix.tx, _matrix.ty);
-				_matrix.translate(0.0, height * scale.y);
+				_matrix.translate(0.0, height);
 				cornerQuad.addQuad(_corner, _matrix, colorTransform);
 
 				// bottom-left
 				_matrix.setTo(-_matrix.b, _matrix.a, -_matrix.d, _matrix.c, _matrix.tx, _matrix.ty);
-				_matrix.translate(-(width * scale.x), 0.0);
+				_matrix.translate(-width, 0.0);
 				cornerQuad.addQuad(_corner, _matrix, colorTransform);
 			}
 		}
@@ -155,6 +157,13 @@ class Box extends Container
 	function set_cornerSize(value:Int):Int
 	{
 		this.cornerSize = value;
+		updateCorners();
+		return value;
+	}
+
+	function set_quality(value:Int):Int
+	{
+		this.quality = MathUtils.mini(value, 1);
 		updateCorners();
 		return value;
 	}
