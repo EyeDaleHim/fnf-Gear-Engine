@@ -151,6 +151,11 @@ class Box extends Container
 				_matrix.translate(-width, 0.0);
 				cornerQuad.addQuad(_corner, _matrix, colorTransform);
 			}
+
+			#if FLX_DEBUG
+			if (FlxG.debugger.drawDebug)
+				drawDebug();
+			#end
 		}
 	}
 

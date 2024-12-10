@@ -1,8 +1,10 @@
 package backend.ui.layout;
 
+import backend.ui.internal.IContainer;
 import flixel.graphics.frames.FlxFrame;
 
-class Container extends FlxSprite
+// most basic element for all ui to extend from
+class Container extends FlxSprite implements IContainer
 {
 	public var parent:Container;
 
@@ -152,6 +154,20 @@ class Container extends FlxSprite
 
 		getTruePosition(_point, camera);
 		return camera.containsPoint(_point, width, height);
+	}
+
+	// mouse overlaps
+	public function mouseOverlaps(?camera:FlxCamera):Bool
+	{
+		if (camera == null)
+			camera = this.camera;
+
+		getTruePosition(_point, camera);
+
+		var rect:FlxRect = FlxRect.get(_point.x, _point.y, width, height);
+		var result:Bool = rect.containsPoint(FlxG.mouse.getWorldPosition(camera));
+		rect.put();
+		return result;
 	}
 }
 
