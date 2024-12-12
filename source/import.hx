@@ -30,6 +30,7 @@ import flixel.sound.FlxSound;
 
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import flixel.util.FlxSignal;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxSpriteUtil;
 

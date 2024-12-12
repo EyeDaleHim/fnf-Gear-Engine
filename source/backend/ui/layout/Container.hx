@@ -1,15 +1,20 @@
 package backend.ui.layout;
 
-import backend.ui.internal.IContainer;
+import openfl.display.Graphics;
 import flixel.graphics.frames.FlxFrame;
+import flixel.util.FlxDirectionFlags;
 
 // most basic element for all ui to extend from
-class Container extends FlxSprite implements IContainer
+class Container extends FlxSprite
 {
-	public var parent:Container;
+	public var parent(default, set):Container;
+
+	public var acceptsChildren:Bool = true;
 
 	public var borderPadding:FlxRect = FlxRect.get();
-    public var anchor:Anchor = TOP_LEFT;
+	public var anchor:Anchor = TOP_LEFT;
+
+	public var paddingDebugColor:FlxColor = FlxColor.ORANGE;
 
 	public function new(?x:Float = 0.0, ?y:Float = 0.0, ?width:Int = 24, ?height:Int = 24)
 	{
@@ -19,9 +24,9 @@ class Container extends FlxSprite implements IContainer
 		initialize();
 	}
 
-	public function initialize():Void
+	private function initialize():Void
 	{
-        moves = false;
+		moves = false;
 
 		makeGraphic(width.floor(), height.floor(), 0xFFFFFFFF);
 	}
@@ -38,8 +43,100 @@ class Container extends FlxSprite implements IContainer
 
 		if (parent != null)
 		{
-			result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
-            result.add(parent.borderPadding.x, parent.borderPadding.y);
+			switch (anchor)
+			{
+				case TOP_MIDDLE:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add((outputRect.width / 2) - (width / 2), 0);
+					}
+				case TOP_RIGHT:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add(outputRect.width - width, 0);
+					}
+				case LEFT:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add(0, (outputRect.height / 2) - (height / 2));
+					}
+				case CENTER:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add((outputRect.width / 2) - (width / 2), (outputRect.height / 2) - (height / 2));
+					}
+				case RIGHT:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add(outputRect.width - width, (outputRect.height / 2) - (height / 2));
+					}
+				case BOTTOM_LEFT:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add(0, outputRect.height - height);
+					}
+				case BOTTOM_MIDDLE:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add((outputRect.width / 2) - (width / 2), outputRect.height - height);
+					}
+				case BOTTOM_RIGHT:
+					{
+						result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+
+						var outputRect:FlxRect = getHitbox();
+						outputRect.setPosition(parent.borderPadding.x, parent.borderPadding.y);
+						outputRect.setSize(parent.width - parent.borderPadding.width, parent.height - parent.borderPadding.height);
+
+						result.add(outputRect.x, outputRect.y);
+						result.add(outputRect.width - width, outputRect.height - height);
+					}
+				default: // TOP LEFT
+					result.addPoint(parent.getScreenPosition()).addPoint(getPosition());
+					result.add(parent.borderPadding.x, parent.borderPadding.y);
+			}
 		}
 		else
 		{
@@ -131,6 +228,52 @@ class Container extends FlxSprite implements IContainer
 		}
 	}
 
+	#if FLX_DEBUG
+	var _drawWithPadding:Bool = false;
+
+	override function drawDebugBoundingBox(gfx:Graphics, rect:FlxRect, allowCollisions:Int, partial:Bool)
+	{
+		// Find the color to use
+		var color:Null<Int> = debugBoundingBoxColor;
+		if (_drawWithPadding)
+			color = paddingDebugColor;
+
+		if (color == null)
+		{
+			if (allowCollisions != FlxDirectionFlags.NONE)
+			{
+				color = partial ? debugBoundingBoxColorPartial : debugBoundingBoxColorSolid;
+			}
+			else
+			{
+				color = debugBoundingBoxColorNotSolid;
+			}
+		}
+
+		// fill static graphics object with square shape
+		gfx.lineStyle(1, color, 0.75);
+		gfx.drawRect(rect.x + 0.5, rect.y + 0.5, rect.width - 1.0, rect.height - 1.0);
+	}
+
+	override public function drawDebugOnCamera(camera:FlxCamera):Void
+	{
+		if (!camera.visible || !camera.exists || !isOnScreen(camera))
+			return;
+
+		var rect = getBoundingBox(camera);
+		var gfx:Graphics = beginDrawDebug(camera);
+		drawDebugBoundingBox(gfx, rect, allowCollisions, immovable);
+
+		_drawWithPadding = true;
+		rect.set(rect.x + borderPadding.x, rect.y + borderPadding.y, rect.width - borderPadding.width, rect.height - borderPadding.height);
+		drawDebugBoundingBox(gfx, rect, allowCollisions, immovable);
+
+		endDrawDebug(camera);
+
+		_drawWithPadding = false;
+	}
+	#end
+
 	@:access(flixel.FlxCamera)
 	override function getBoundingBox(camera:FlxCamera):FlxRect
 	{
@@ -162,26 +305,42 @@ class Container extends FlxSprite implements IContainer
 		if (camera == null)
 			camera = this.camera;
 
-		getTruePosition(_point, camera);
+		return getBoundingBox(camera).containsPoint(FlxG.mouse.getPositionInCameraView(camera));
+	}
 
-		var rect:FlxRect = FlxRect.get(_point.x, _point.y, width, height);
-		var result:Bool = rect.containsPoint(FlxG.mouse.getWorldPosition(camera));
-		rect.put();
-		return result;
+	function set_parent(newParent:Container):Container
+	{
+		if (newParent == this)
+		{
+			FlxG.log.error('This container cannot be a child of itself.');
+			return this;
+		}
+
+		if (!newParent?.acceptsChildren)
+		{
+			FlxG.log.error('This container does not accept children.');
+			return parent;
+		}
+
+		parent = newParent;
+
+		return newParent;
 	}
 }
 
-enum Anchor
+enum abstract Anchor(Int)
 {
-    TOP_LEFT;
-    TOP_MIDDLE;
-    TOP_RIGHT;
+	var TOP_LEFT = 1;
+	var TOP_MIDDLE = 2;
+	var TOP_RIGHT = 3;
 
-    LEFT;
-    CENTER;
-    RIGHT;
+	var LEFT = 4;
+	var CENTER = 5;
+	var RIGHT = 6;
 
-    BOTTOM_LEFT;
-    BOTTOM_MIDDLE;
-    BOTTOM_RIGHT;
+	var BOTTOM_LEFT = 7;
+	var BOTTOM_MIDDLE = 8;
+	var BOTTOM_RIGHT = 9;
+
+	var NONE = 0;
 }
