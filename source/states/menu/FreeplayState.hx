@@ -11,6 +11,8 @@ class FreeplayState extends Page
 	public var background:FlxSprite;
 	public var songItems:AtlasTextGroup;
 
+	public var scoreBox:Box;
+
 	public var playMusicTimer:FlxTimer;
 
 	public var music:FlxSound;
@@ -39,6 +41,11 @@ class FreeplayState extends Page
 			text.alpha = 0.6;
 		});
 		add(songItems);
+
+		scoreBox = new Box(FlxG.width * 0.6, 0, FlxG.width * 0.4, 66, 16, 2);
+		scoreBox.color = 0xFF000000;
+		scoreBox.alpha = 0.6;
+		add(scoreBox);
 
 		changeItem();
 	}

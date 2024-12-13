@@ -17,6 +17,7 @@ class Text extends Container
 
 	override function update(elapsed:Float)
 	{
+		super.update(elapsed);
 		if (textObject.exists && textObject.active)
 			textObject.update(elapsed);
 	}

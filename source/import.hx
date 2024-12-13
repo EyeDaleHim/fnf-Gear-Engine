@@ -43,6 +43,11 @@ import backend.engine.input.Control;
 import backend.engine.input.Controls;
 
 import objects.engine.Transition;
+
+import backend.ui.input.Button;
+import backend.ui.layout.Box;
+import backend.ui.layout.Text;
+
 import objects.AtlasText;
 import objects.AtlasTextGroup;
 

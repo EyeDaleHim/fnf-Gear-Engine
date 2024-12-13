@@ -16,7 +16,7 @@ class Container extends FlxSprite
 
 	public var paddingDebugColor:FlxColor = FlxColor.ORANGE;
 
-	public function new(?x:Float = 0.0, ?y:Float = 0.0, ?width:Int = 24, ?height:Int = 24)
+	public function new(?x:Float = 0.0, ?y:Float = 0.0, ?width:Float = 24, ?height:Float = 24)
 	{
 		super(x, y);
 		setSize(width, height);
@@ -305,7 +305,7 @@ class Container extends FlxSprite
 		if (camera == null)
 			camera = this.camera;
 
-		return getBoundingBox(camera).containsPoint(FlxG.mouse.getPositionInCameraView(camera));
+		return getBoundingBox(camera).containsPoint(FlxG.mouse.getViewPosition(camera));
 	}
 
 	function set_parent(newParent:Container):Container

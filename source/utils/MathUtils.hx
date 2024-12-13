@@ -1,5 +1,7 @@
 package utils;
 
+import flixel.math.FlxMatrix;
+
 class MathUtils
 {
 	/**
@@ -84,5 +86,12 @@ class MathUtils
 		}
 
 		return output.round();
+	}
+
+	// is matrix "math"?
+	public static function setMatrixSize(matrix:FlxMatrix, width:Float, height:Float)
+	{
+		matrix.identity();
+		matrix.scale(width, height);
 	}
 }
