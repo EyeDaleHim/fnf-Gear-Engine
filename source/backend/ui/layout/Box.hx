@@ -158,7 +158,7 @@ class Box extends Container
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
 					// bottom
-					_matrix.translate(0.0, finalPosition.y - defaultCornerSize.y);
+					_matrix.translate(0.0, height - defaultCornerSize.y);
 					bodyItem.addQuad(whitePixel, _matrix, colorTransform);
 
 					// center
