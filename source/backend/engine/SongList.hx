@@ -7,6 +7,8 @@ class SongList
 	public static final songFolder:String = "assets/levels/songs";
 	public static final metaDefinition:String = "meta.json";
 
+	public static final defaultDifficulties:Array<String> = ['easy', 'normal', 'hard'];
+
 	public static var list(default, null):Array<SongFormat> = [];
 
 	public static function prefetch():Void

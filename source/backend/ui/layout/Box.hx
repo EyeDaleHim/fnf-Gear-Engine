@@ -29,10 +29,10 @@ class Box extends Container
 
 	public var usingComplexCorners(get, never):Bool;
 
-	public var topLeftCornerSize(default, set):Int;
-	public var topRightCornerSize(default, set):Int;
-	public var bottomLeftCornerSize(default, set):Int;
-	public var bottomRightCornerSize(default, set):Int;
+	public var topLeftCornerSize(default, set):Null<Int>;
+	public var topRightCornerSize(default, set):Null<Int>;
+	public var bottomLeftCornerSize(default, set):Null<Int>;
+	public var bottomRightCornerSize(default, set):Null<Int>;
 
 	public var cornerGraphics:CornerGraphics = {
 		topLeft: null,
@@ -251,9 +251,11 @@ class Box extends Container
 
 					centerRect.x = MathUtils.max(defaultCornerSize.x, cornerGraphics.topLeft == null ? 0 : cornerGraphics.topLeft.width);
 					centerRect.y = MathUtils.max(defaultCornerSize.y, cornerGraphics.topLeft == null ? 0 : cornerGraphics.topLeft.height);
-					centerRect.width = MathUtils.max(width - defaultCornerSize.x - centerRect.x, cornerGraphics.topRight == null ? 0 : cornerGraphics.topRight.width,
+					centerRect.width = MathUtils.max(width - defaultCornerSize.x - centerRect.x,
+						cornerGraphics.topRight == null ? 0 : cornerGraphics.topRight.width,
 						cornerGraphics.bottomRight == null ? 0 : cornerGraphics.bottomRight.width);
-					centerRect.height = MathUtils.max(height - defaultCornerSize.y - centerRect.y, cornerGraphics.bottomLeft == null ? 0 : cornerGraphics.bottomLeft.width,
+					centerRect.height = MathUtils.max(height - defaultCornerSize.y - centerRect.y,
+						cornerGraphics.bottomLeft == null ? 0 : cornerGraphics.bottomLeft.width,
 						cornerGraphics.bottomRight == null ? 0 : cornerGraphics.bottomRight.height);
 
 					_matrix.setMatrixSize(centerRect.width, centerRect.height);
@@ -331,7 +333,7 @@ class Box extends Container
 
 	function get_usingComplexCorners():Bool
 	{
-		return (cornerGraphics.topLeft != null || cornerGraphics.topRight != null || cornerGraphics.bottomLeft != null || cornerGraphics.bottomRight != null);
+		return (topLeftCornerSize != null || topRightCornerSize != null || bottomLeftCornerSize != null || bottomRightCornerSize != null);
 	}
 
 	function set_cornerSize(value:Int):Int
@@ -341,43 +343,67 @@ class Box extends Container
 		return value;
 	}
 
-	function set_topLeftCornerSize(value:Int):Int
+	function set_topLeftCornerSize(value:Null<Int>):Null<Int>
 	{
+		if (value == null)
+		{
+			this.topLeftCornerSize = null;
+			return null;
+		}
+
 		this.topLeftCornerSize = MathUtils.maxi(value, 0);
 		if (this.topLeftCornerSize == 0)
 			cornerGraphics.topLeft = null;
 		else
-		updateCorners('top_left');
+			updateCorners('top_left');
 		return value;
 	}
 
-	function set_topRightCornerSize(value:Int):Int
+	function set_topRightCornerSize(value:Null<Int>):Null<Int>
 	{
+		if (value == null)
+		{
+			this.topRightCornerSize = null;
+			return null;
+		}
+
 		this.topRightCornerSize = MathUtils.maxi(value, 0);
 		if (this.topRightCornerSize == 0)
 			cornerGraphics.topRight = null;
 		else
-		updateCorners('top_right');
+			updateCorners('top_right');
 		return value;
 	}
 
-	function set_bottomLeftCornerSize(value:Int):Int
+	function set_bottomLeftCornerSize(value:Null<Int>):Null<Int>
 	{
+		if (value == null)
+		{
+			this.bottomLeftCornerSize = null;
+			return null;
+		}
+
 		this.bottomLeftCornerSize = MathUtils.maxi(value, 0);
 		if (this.bottomLeftCornerSize == 0)
 			cornerGraphics.bottomLeft = null;
 		else
-		updateCorners('bottom_left');
+			updateCorners('bottom_left');
 		return value;
 	}
 
-	function set_bottomRightCornerSize(value:Int):Int
+	function set_bottomRightCornerSize(value:Null<Int>):Null<Int>
 	{
+		if (value == null)
+		{
+			this.bottomRightCornerSize = null;
+			return null;
+		}
+
 		this.bottomRightCornerSize = MathUtils.maxi(value, 0);
 		if (this.bottomRightCornerSize == 0)
 			cornerGraphics.bottomRight = null;
 		else
-		updateCorners('bottom_right');
+			updateCorners('bottom_right');
 		return value;
 	}
 

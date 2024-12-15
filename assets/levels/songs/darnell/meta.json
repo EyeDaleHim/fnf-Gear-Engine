@@ -1,17 +1,22 @@
 {
     "name": "darnell",
     "display": "Darnell",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "darnell",
     "characters": [
-        "gf",
-        "bf"
+        "darnell",
+        "nene",
+        "pico"
     ],
     "bpm": 100,
     "stage": "stage",
     "difficulties": [
         "easy",
         "normal",
-        "hard"
+        "hard",
+        "bf-easy",
+        "bf-normal",
+        "bf-hard",
+        "erect"
     ],
     "track": "Inst"
 }

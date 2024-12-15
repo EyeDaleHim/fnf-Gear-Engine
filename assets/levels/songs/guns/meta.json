@@ -11,7 +11,11 @@
     "difficulties": [
         "easy",
         "normal",
-        "hard"
+        "hard",
+        "pico-easy",
+        "pico-normal",
+        "pico-hard",
+        "erect"
     ],
     "track": "Inst"
 }

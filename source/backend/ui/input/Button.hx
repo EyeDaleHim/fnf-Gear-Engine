@@ -14,6 +14,8 @@ class Button extends Box
 	public var pressColor:FlxColor = 0xFFA5A5A5;
 	public var hoverColor:FlxColor = 0xFFE6E6E6;
 
+	public var textOnly:Bool = false;
+
 	public var text(get, set):String;
 
 	public var buttonText:Text;
@@ -89,7 +91,8 @@ class Button extends Box
 
 	override public function draw()
 	{
-		super.draw();
+		if (!textOnly)
+			super.draw();
 		if (buttonText != null && text.length > 0)
 			buttonText.draw();
 	}

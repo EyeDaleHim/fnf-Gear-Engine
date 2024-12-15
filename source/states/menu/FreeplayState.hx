@@ -6,12 +6,14 @@ import states.internal.Page;
 class FreeplayState extends Page
 {
 	public var index:Int = 0;
-	public var diffIndex:Int = 0;
+	public var diffIndex:Int = 1;
 
 	public var background:FlxSprite;
 	public var songItems:AtlasTextGroup;
 
 	public var scoreBox:Box;
+	public var scoreText:Text;
+	public var difficultyText:Text;
 
 	public var playMusicTimer:FlxTimer;
 
@@ -45,7 +47,22 @@ class FreeplayState extends Page
 		scoreBox = new Box(FlxG.width * 0.6, 0, FlxG.width * 0.4, 66, 16, 2);
 		scoreBox.color = 0xFF000000;
 		scoreBox.alpha = 0.6;
+		scoreBox.x -= 4.0;
+		scoreBox.y += 4.0;
 		add(scoreBox);
+
+		scoreText = new Text("PERSONAL BEST: 0");
+		scoreText.setFormat(Assets.fontByName('vcr'), 32, FlxColor.WHITE);
+		scoreText.anchor = TOP_MIDDLE;
+		scoreText.parent = scoreBox;
+		add(scoreText);
+
+		difficultyText = new Text("< NORMAL >");
+		difficultyText.setFormat(Assets.fontByName('vcr'), 24, FlxColor.WHITE);
+		difficultyText.anchor = BOTTOM_MIDDLE;
+		difficultyText.parent = scoreBox;
+		difficultyText.y -= 4.0;
+		add(difficultyText);
 
 		changeItem();
 	}
@@ -58,6 +75,13 @@ class FreeplayState extends Page
 			changeItem(-1);
 		if (Control.UI_DOWN.justPressed)
 			changeItem(1);
+		if (Control.UI_LEFT.justPressed)
+			changeDifficulty(-1);
+		if (Control.UI_RIGHT.justPressed)
+			changeDifficulty(1);
+
+		scoreBox.setSize(scoreText.width + 32, scoreBox.height);
+		scoreBox.x = FlxG.width - scoreBox.width - 4.0;
 
 		super.update(elapsed);
 	}
@@ -97,6 +121,37 @@ class FreeplayState extends Page
 		songItems.selected = index;
 		songItems.selectedText.alpha = 1.0;
 
+		changeDifficulty();
+
+		startSongTimer();
+	}
+
+	public function changeDifficulty(change:Int = 0)
+	{
+		var selectedSong = SongList.list[index];
+		diffIndex = FlxMath.bound(diffIndex + change, 0, selectedSong.difficulties.length - 1).floor();
+
+		if (change != 0)
+			FlxG.sound.play(Assets.sound("sfx/menu/scrollMenu"), 0.1);
+
+		difficultyText.text = '< ${selectedSong.difficulties[diffIndex].toUpperCase()} >';
+
+		randomScore();
+	}
+
+	private var twn:FlxTween;
+	private var score:Int = 0;
+
+	private function randomScore():Void
+	{
+		twn = FlxTween.num(score, FlxG.random.int(1, 2500) * 350, 0.1, (v) -> {
+			score = v.floor();
+			scoreText.text = 'PERSONAL BEST: ${score}';
+		});
+	}
+
+	private function startSongTimer():Void
+	{
 		playMusicTimer.cancel();
 		playMusicTimer.start(1.0, (tmr:FlxTimer) ->
 		{
