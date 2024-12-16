@@ -9,7 +9,7 @@ class InitState extends FlxState
         
         #if MENU
         #else
-        FlxG.switchState(()->new PageState('menu'));
+        FlxG.switchState(()->new _test.CharacterTestState());
         #end
     }
 }

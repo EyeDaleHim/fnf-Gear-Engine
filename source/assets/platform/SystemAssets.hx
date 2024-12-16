@@ -126,9 +126,10 @@ class SystemAssets
 		return graphic;
 	}
 
-	public static function frames(path:String):FlxAtlasFrames
+	public static function frames(path:String, ?xmlPath:String):FlxAtlasFrames
 	{
-		var xmlPath:String = imagePath(path).replace('.png', '.xml');
+		if (xmlPath == null)
+			xmlPath = imagePath(path).replace('.png', '.xml');
 
 		if (exists(path, imagePath) && exists(xmlPath))
 			return FlxAtlasFrames.fromSparrow(image(path), contents(xmlPath));

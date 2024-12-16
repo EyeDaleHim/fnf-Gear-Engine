@@ -71,6 +71,8 @@ class FreeplayState extends Page
 	{
 		if (FlxG.keys.justPressed.ESCAPE)
 			switchPage('menu');
+		if (FlxG.keys.justPressed.ENTER)
+			selectItem();
 		if (Control.UI_UP.justPressed)
 			changeItem(-1);
 		if (Control.UI_DOWN.justPressed)
@@ -108,6 +110,11 @@ class FreeplayState extends Page
 		super.revive();
 
 		musicFuture = new Future<Void>(loadSelectedSong, true);
+	}
+
+	public function selectItem():Void
+	{
+		FlxG.switchState(()-> new states.play.PlayState());
 	}
 
 	public function changeItem(change:Int = 0):Void
