@@ -14,15 +14,31 @@ class Page extends FlxContainer
 		parent.switchPage(page);
 	}
 
-	public function playMenuSong(?song:String = "freakyMenu", ?bpm:Float = 102):Void
+	public function playMenuSong(?bpm:Float = 102):Void
 	{
-		parent.conductor.clear();
+		parent.conductor.clearChannels();
+		parent.conductor.mainChannel = parent.music;
+		parent.conductor.bpm = bpm;
+		@:privateAccess
+		if (parent.music._paused)
+			parent.conductor.resume();
+		else
+			parent.conductor.play();
+	}
 
-		if (parent.music == null)
-			parent.music = new FlxSound();
+	public function createMenuSong(?song:String = "freakyMenu"):Void
+	{
+		parent.music = new FlxSound();
 		parent.music.loadEmbedded(Assets.sound('music/$song', true));
 		parent.music.persist = true;
-		parent.conductor.startSong(parent.music, bpm);
+
 		FlxG.sound.list.add(parent.music);
+	}
+
+	public inline function checkMenuSong(?song:String = "freakyMenu", ?bpm:Float = 102):Void
+	{
+		if (parent.music == null)
+			createMenuSong(song);
+		playMenuSong(bpm);
 	}
 }

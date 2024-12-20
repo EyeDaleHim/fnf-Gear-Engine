@@ -93,8 +93,7 @@ class MenuState extends Page
 		flicker.kill();
 		selected = false;
 
-		if (FlxG.sound.music == null)
-			playMenuSong();
+		checkMenuSong();
 	}
 
 	public function selectItem()

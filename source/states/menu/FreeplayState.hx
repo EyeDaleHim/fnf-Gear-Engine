@@ -27,7 +27,6 @@ class FreeplayState extends Page
 		super();
 
 		music = new FlxSound();
-		FlxG.sound.list.add(music);
 
 		playMusicTimer = new FlxTimer();
 
@@ -70,7 +69,24 @@ class FreeplayState extends Page
 	override public function update(elapsed:Float)
 	{
 		if (FlxG.keys.justPressed.ESCAPE)
+		{
+			if (music.playing)
+			{
+				music.fadeOut(0.5, (_) ->
+				{
+					parent.conductor.clearChannels();
+	
+					if (parent.music != null)
+					{
+						parent.conductor.mainChannel = parent.music;
+						parent.conductor.resume();
+						parent.music.fadeIn();
+					}
+				});
+			}
+
 			switchPage('menu');
+		}
 		if (FlxG.keys.justPressed.ENTER)
 			selectItem();
 		if (Control.UI_UP.justPressed)
@@ -88,34 +104,12 @@ class FreeplayState extends Page
 		super.update(elapsed);
 	}
 
-	override public function kill()
-	{
-		super.kill();
-
-		if (music.playing)
-		{
-			music.fadeOut((_) ->
-			{
-				parent.conductor.pause();
-				parent.conductor.clearChannels();
-
-				if (parent.music != null)
-				{
-					parent.conductor.replaceChannel(parent.music);
-					parent.conductor.resume();
-				}
-			});
-		}
-	}
-
 	override public function revive()
 	{
 		super.revive();
 
-		if (parent.music == null)
-			playMenuSong();
-
-		startSongTimer();
+		checkMenuSong();
+		startSongTimer(true);
 	}
 
 	public function selectItem():Void
@@ -164,12 +158,12 @@ class FreeplayState extends Page
 		});
 	}
 
-	private function startSongTimer():Void
+	private function startSongTimer(?force:Bool = false):Void
 	{
 		playMusicTimer.cancel();
 		playMusicTimer.start(1.0, (tmr:FlxTimer) ->
 		{
-			if (playedSongIndex != index)
+			if (force || playedSongIndex != index)
 			{
 				playedSongIndex = index;
 				musicFuture = new Future<Void>(loadSelectedSong, true);
@@ -189,6 +183,9 @@ class FreeplayState extends Page
 
 	private function songLoadComplete():Void
 	{
+		if (!exists)
+			return;
+
 		var item = SongList.list[playedSongIndex];
 
 		if (parent.music.playing)
@@ -210,7 +207,10 @@ class FreeplayState extends Page
 		FlxTimer.wait(1.2, () ->
 		{
 			music.loadEmbedded(Assets.levelSongTrack(item.name, item.track, true), true);
-			parent.conductor.startSong(music);
+
+			parent.conductor.clearChannels();
+			parent.conductor.mainChannel = music;
+			parent.conductor.play();
 		});
 	}
 }

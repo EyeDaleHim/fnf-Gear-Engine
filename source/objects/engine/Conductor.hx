@@ -79,7 +79,7 @@ class Conductor extends FlxBasic
 
 				for (i in 0...missing)
 				{
-					onBeat.dispatch(lastBeat + missing);
+					onBeat.dispatch(lastBeat + i);
 				}
 			}
 			else
@@ -98,7 +98,7 @@ class Conductor extends FlxBasic
 
 				for (i in 0...missing)
 				{
-					onStep.dispatch(lastStep + missing);
+					onStep.dispatch(lastStep + i);
 				}
 			}
 			else
@@ -117,7 +117,7 @@ class Conductor extends FlxBasic
 
 				for (i in 0...missing)
 				{
-					onMeasure.dispatch(lastMeasure + missing);
+					onMeasure.dispatch(lastMeasure + i);
 				}
 			}
 			else
@@ -205,45 +205,6 @@ class Conductor extends FlxBasic
 		clearCallbacks();
 	}
 
-	public function startSong(?path:String, ?sound:FlxSound, ?bpm:Float = 100.0):Void
-	{
-		this.bpm = bpm;
-
-		if ((path == null || sound == null) && mainChannel != null)
-		{
-			if (mainChannel.playing)
-				mainChannel.stop();
-			mainChannel.play();
-		}
-
-		if (sound != null)
-		{
-			mainChannel = sound;
-			mainChannel.play();
-
-			return;
-		}
-
-		if (path != null)
-		{
-			if (Assets.exists(Assets.soundPath(path)))
-			{
-				if (mainChannel == null)
-					mainChannel = new FlxSound();
-
-				mainChannel.loadEmbedded(Assets.sound(path));
-				mainChannel.play();
-			}
-		}
-	}
-
-	public function replaceChannel(sound:FlxSound)
-	{
-		mainChannel = sound;
-	}
-
-	public function addChannel(?path:String, ?sound:FlxSound):Void {}
-
 	public function pause():Void
 	{
 		for (channel in channels)
@@ -259,11 +220,9 @@ class Conductor extends FlxBasic
 	{
 		for (channel in channels)
 		{
-			if (channel?.playing)
-			{
+			if (!channel?.playing)
 				channel.stop();
-				channel.play();
-			}
+			channel.play();
 		}
 
 		position = 0.0;
@@ -288,6 +247,9 @@ class Conductor extends FlxBasic
 
 	function set_mainChannel(newSound:FlxSound):FlxSound
 	{
+		if (newSound != null)
+			FlxG.sound.list.add(newSound);
+
 		return channels[0] = newSound;
 	}
 
