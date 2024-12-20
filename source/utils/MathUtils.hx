@@ -88,6 +88,17 @@ class MathUtils
 		return output.round();
 	}
 
+	public static inline function bound(value:Float, ?min:Float, ?max:Float):Float
+	{
+		var lowerBound:Float = (min != null && value < min) ? min : value;
+		return (max != null && lowerBound > max) ? max : lowerBound;
+	}
+
+	public inline static function boundLerp(a:Float, b:Float, ratio:Float):Float
+	{
+		return a + bound(ratio, 0, 1) * (b - a);
+	}
+
 	// is matrix "math"?
 	public static function setMatrixSize(matrix:FlxMatrix, width:Float, height:Float)
 	{

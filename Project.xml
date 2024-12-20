@@ -45,6 +45,9 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
+	<warning value="Haxe 4.2.5 is no longer supported for Gear Engine, use 4.3.0 and above." if="{haxe &lt;= 4.2.4 }"/>
+	<warning value="flixel 5.8.0 is no longer supported for Gear Engine, use 5.9.0 and above." if="{flixel &lt;= 5.8.0 }"/>
+
 	<!--Enable the Flixel core recording system-->
 	<!--<haxedef name="FLX_RECORD" />-->
 

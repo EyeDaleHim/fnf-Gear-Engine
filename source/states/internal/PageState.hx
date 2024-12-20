@@ -9,6 +9,8 @@ class PageState extends MainState
 
 	public var currentPage:Page;
 
+	public var music:FlxSound;
+
 	public static function addPage(name:String, page:Page):Void
 	{
 		pageInstances.set(name, page);

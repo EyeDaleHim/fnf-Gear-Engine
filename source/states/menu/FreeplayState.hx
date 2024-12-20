@@ -96,10 +96,13 @@ class FreeplayState extends Page
 		{
 			music.fadeOut((_) ->
 			{
-				if (FlxG.sound.music != null)
+				parent.conductor.pause();
+				parent.conductor.clearChannels();
+
+				if (parent.music != null)
 				{
-					FlxG.sound.music.resume();
-					FlxG.sound.music.fadeIn();
+					parent.conductor.replaceChannel(parent.music);
+					parent.conductor.resume();
 				}
 			});
 		}
@@ -109,12 +112,15 @@ class FreeplayState extends Page
 	{
 		super.revive();
 
-		musicFuture = new Future<Void>(loadSelectedSong, true);
+		if (parent.music == null)
+			playMenuSong();
+
+		startSongTimer();
 	}
 
 	public function selectItem():Void
 	{
-		FlxG.switchState(()-> new states.play.PlayState());
+		FlxG.switchState(() -> new states.play.PlayState());
 	}
 
 	public function changeItem(change:Int = 0):Void
@@ -151,7 +157,8 @@ class FreeplayState extends Page
 
 	private function randomScore():Void
 	{
-		twn = FlxTween.num(score, FlxG.random.int(1, 2500) * 350, 0.1, (v) -> {
+		twn = FlxTween.num(score, FlxG.random.int(1, 2500) * 350, 0.1, (v) ->
+		{
 			score = v.floor();
 			scoreText.text = 'PERSONAL BEST: ${score}';
 		});
@@ -184,38 +191,26 @@ class FreeplayState extends Page
 	{
 		var item = SongList.list[playedSongIndex];
 
+		if (parent.music.playing)
+		{
+			parent.music.fadeOut((_) ->
+			{
+				parent.music.pause();
+			});
+		}
+
 		if (music.playing)
 		{
 			music.fadeOut((_) ->
 			{
 				music.stop();
-				music.loadEmbedded(Assets.levelSongTrack(item.name, item.track, true), true);
-
-				FlxTimer.wait(0.2, () ->
-				{
-					music.play();
-				});
 			});
 		}
-		else if (FlxG.sound.music != null)
+
+		FlxTimer.wait(1.2, () ->
 		{
 			music.loadEmbedded(Assets.levelSongTrack(item.name, item.track, true), true);
-
-			FlxG.sound.music.fadeOut((_) ->
-			{
-				FlxTimer.wait(0.2, () ->
-				{
-					music.play();
-				});
-			});
-		}
-		else
-		{
-			music.loadEmbedded(Assets.levelSongTrack(item.name, item.track, true), true);
-			FlxTimer.wait(0.2, () ->
-			{
-				music.play();
-			});
-		}
+			parent.conductor.startSong(music);
+		});
 	}
 }

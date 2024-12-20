@@ -23,6 +23,7 @@ class Preloader extends FlxBasePreloader
 		Main.debugInfo = new DebugInfo(4, 4);
 
 		FlxG.plugins.addIfUniqueType(Transition.instance = new Transition());
+		FlxG.plugins.addIfUniqueType(Conductor.instance = new Conductor());
 	}
 
 	public function preloadSongs():Void

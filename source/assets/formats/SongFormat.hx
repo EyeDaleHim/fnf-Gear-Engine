@@ -16,5 +16,6 @@ typedef SongFormat = {
 
     // additional properties
     var ?difficulties:Array<String>; // difficulties to load, uses ["easy", "normal", "hard"] as default, game checks "chart/DIFF.json"
-    var ?track:String; // fallback track to load if the chart doesn't have one, also the file to play on freeplay
+    var ?track:String;
+    var ?tracks:Array<String>; // fallback track to load if the chart doesn't have one, also the file to play on freeplay
 };

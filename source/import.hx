@@ -42,6 +42,7 @@ import backend.engine.WeekList;
 import backend.engine.input.Control;
 import backend.engine.input.Controls;
 
+import objects.engine.Conductor;
 import objects.engine.Transition;
 
 import backend.ui.input.Button;

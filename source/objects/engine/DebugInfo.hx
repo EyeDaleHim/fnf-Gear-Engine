@@ -53,7 +53,7 @@ class DebugInfo extends Sprite
 			var fps:Float = (_frameCount / elapsed) * 1000;
 			buf.add('FPS: ${Std.int(fps)}');
 			buf.add('\n');
-			buf.add('MEM: ${FlxStringUtil.formatBytes(System.totalMemory)}');
+			buf.add('MEM: ${FlxStringUtil.formatBytes(System.totalMemoryNumber)}');
 			textField.text = outlineTextField.text = buf.toString();
 			buf = null;
 			_frameCount = 0;
