@@ -145,10 +145,8 @@ class Conductor extends FlxBasic
 
 			final deltaTime:Float = Math.abs(channel.time - mainPosition);
 
-			if (force)
+			if (force || deltaTime >= bounds)
 				channel.time = mainPosition;
-			else
-				channel.time = deltaTime >= bounds ? mainPosition : channel.time;
 		}
 	}
 
@@ -220,8 +218,6 @@ class Conductor extends FlxBasic
 	{
 		for (channel in channels)
 		{
-			if (!channel?.playing)
-				channel.stop();
 			channel.play();
 		}
 

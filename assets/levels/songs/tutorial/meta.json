@@ -13,5 +13,9 @@
         "normal",
         "hard"
     ],
-    "track": "Inst"
+    "tracks": [
+        "Inst",
+        "Voices-gf",
+        "Voices-bf"
+    ]
 }

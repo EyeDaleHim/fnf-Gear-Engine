@@ -17,5 +17,9 @@
         "pico-hard",
         "erect"
     ],
-    "track": "Inst"
+    "tracks": [
+        "Inst",
+        "Voices-bf",
+        "Voices-dad"
+    ]
 }

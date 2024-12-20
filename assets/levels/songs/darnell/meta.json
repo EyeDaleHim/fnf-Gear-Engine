@@ -15,8 +15,11 @@
         "hard",
         "bf-easy",
         "bf-normal",
-        "bf-hard",
-        "erect"
+        "bf-hard"
     ],
-    "track": "Inst"
+    "tracks": [
+        "Inst",
+        "Voices-darnell",
+        "Voices-pico"
+    ]
 }

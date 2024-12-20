@@ -14,5 +14,9 @@
         "hard",
         "erect"
     ],
-    "track": "Inst"
+    "tracks": [
+        "Inst",
+        "Voices-mom",
+        "Voices-bf"
+    ]
 }

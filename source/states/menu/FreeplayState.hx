@@ -17,7 +17,7 @@ class FreeplayState extends Page
 
 	public var playMusicTimer:FlxTimer;
 
-	public var music:FlxSound;
+	public var musics:Array<FlxSound> = [];
 
 	private var musicFuture:Future<Void>;
 	private var playedSongIndex:Int = -1;
@@ -25,8 +25,6 @@ class FreeplayState extends Page
 	public function new()
 	{
 		super();
-
-		music = new FlxSound();
 
 		playMusicTimer = new FlxTimer();
 
@@ -70,19 +68,27 @@ class FreeplayState extends Page
 	{
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
-			if (music.playing)
+			if (musics.length > 0 && musics[0].playing)
 			{
-				music.fadeOut(0.5, (_) ->
-				{
-					parent.conductor.clearChannels();
-	
-					if (parent.music != null)
+				FlxTween.num(1.0, 0.0, 0.5, {
+					onComplete: (_) ->
 					{
-						parent.conductor.mainChannel = parent.music;
-						parent.conductor.resume();
-						parent.music.fadeIn();
+						parent.conductor.clearChannels();
+
+						if (parent.music != null)
+						{
+							parent.conductor.mainChannel = parent.music;
+							parent.conductor.resume();
+							parent.music.fadeIn();
+						}
 					}
-				});
+				}, (v) ->
+					{
+						for (music in musics)
+						{
+							music.volume = v;
+						}
+					});
 			}
 
 			switchPage('menu');
@@ -174,10 +180,14 @@ class FreeplayState extends Page
 	private function loadSelectedSong():Void
 	{
 		var item = SongList.list[playedSongIndex];
-		if (item.track == null)
+		if (item.tracks == null || item.tracks.length == 0)
 			return;
 
-		Assets.levelSongTrack(item.name, item.track, true);
+		for (track in item.tracks)
+		{
+			Assets.levelSongTrack(item.name, track, true);
+		}
+
 		songLoadComplete();
 	}
 
@@ -196,20 +206,36 @@ class FreeplayState extends Page
 			});
 		}
 
-		if (music.playing)
+		for (music in musics)
 		{
-			music.fadeOut((_) ->
+			if (music.playing)
 			{
-				music.stop();
-			});
+				music.fadeOut((_) ->
+				{
+					music.stop();
+				});
+			}
 		}
 
 		FlxTimer.wait(1.2, () ->
 		{
-			music.loadEmbedded(Assets.levelSongTrack(item.name, item.track, true), true);
+			for (i in 0...item.tracks.length)
+			{
+				if (musics[i] == null)
+					musics[i] = new FlxSound();
+
+				musics[i].loadEmbedded(Assets.levelSongTrack(item.name, item.tracks[i], true));
+				musics[i].looped = true;
+				musics[i].persist = true;
+			}
 
 			parent.conductor.clearChannels();
-			parent.conductor.mainChannel = music;
+			for (i in 0...musics.length)
+			{
+				parent.conductor.channels[i] = musics[i];
+				FlxG.sound.list.add(musics[i]);
+			}
+			
 			parent.conductor.play();
 		});
 	}
