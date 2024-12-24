@@ -15,18 +15,19 @@ class FreeplayState extends Page
 	public var scoreText:Text;
 	public var difficultyText:Text;
 
-	public var playMusicTimer:FlxTimer;
-
 	public var musics:Array<FlxSound> = [];
 
 	private var musicFuture:Future<Void>;
 	private var playedSongIndex:Int = -1;
 
+	private var waitPreviewTimer:FlxTimer;
+	private var previewTimer:FlxTimer;
+
 	public function new()
 	{
 		super();
 
-		playMusicTimer = new FlxTimer();
+		waitPreviewTimer = new FlxTimer();
 
 		background = new FlxSprite(Assets.image('menus/backgrounds/freeplayBG'));
 		background.active = false;
@@ -68,6 +69,8 @@ class FreeplayState extends Page
 	{
 		if (FlxG.keys.justPressed.ESCAPE)
 		{
+			interruptSongPreview();
+
 			if (musics.length > 0 && musics[0].playing)
 			{
 				FlxTween.num(1.0, 0.0, 0.5, {
@@ -115,12 +118,38 @@ class FreeplayState extends Page
 		super.revive();
 
 		checkMenuSong();
-		startSongTimer(true);
+		startPreviewTimer(true);
 	}
 
 	public function selectItem():Void
 	{
-		FlxG.switchState(() -> new states.play.PlayState());
+		interruptSongPreview();
+
+		if (parent.music.playing)
+		{
+			parent.music.fadeOut((_) ->
+			{
+				parent.music.pause();
+			});
+		}
+
+		for (music in musics)
+		{
+			if (music.playing)
+			{
+				music.fadeOut(0.5, (_) ->
+				{
+					music.stop();
+				});
+			}
+		}
+
+		PlayState.loadGame([{song: SongList.list[index], chart: null}], false, (newState) ->
+		{
+			parent.conductor.clear();
+
+			FlxG.switchState(() -> newState);
+		});
 	}
 
 	public function changeItem(change:Int = 0):Void
@@ -136,7 +165,7 @@ class FreeplayState extends Page
 
 		changeDifficulty();
 
-		startSongTimer();
+		startPreviewTimer();
 	}
 
 	public function changeDifficulty(change:Int = 0)
@@ -164,10 +193,10 @@ class FreeplayState extends Page
 		});
 	}
 
-	private function startSongTimer(?force:Bool = false):Void
+	private function startPreviewTimer(?force:Bool = false):Void
 	{
-		playMusicTimer.cancel();
-		playMusicTimer.start(1.0, (tmr:FlxTimer) ->
+		waitPreviewTimer.cancel();
+		waitPreviewTimer.start(1.0, (tmr:FlxTimer) ->
 		{
 			if (force || playedSongIndex != index)
 			{
@@ -217,7 +246,7 @@ class FreeplayState extends Page
 			}
 		}
 
-		FlxTimer.wait(1.2, () ->
+		previewTimer = FlxTimer.wait(1.2, () ->
 		{
 			for (i in 0...item.tracks.length)
 			{
@@ -235,8 +264,17 @@ class FreeplayState extends Page
 				parent.conductor.channels[i] = musics[i];
 				FlxG.sound.list.add(musics[i]);
 			}
-			
+
 			parent.conductor.play();
 		});
+	}
+
+	private function interruptSongPreview():Void
+	{
+		if (waitPreviewTimer != null)
+			waitPreviewTimer.cancel();
+		if (previewTimer != null)
+			previewTimer.cancel();
+		musicFuture = null;
 	}
 }

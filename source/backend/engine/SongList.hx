@@ -10,6 +10,7 @@ class SongList
 	public static final defaultDifficulties:Array<String> = ['easy', 'normal', 'hard'];
 
 	public static var list(default, null):Array<SongFormat> = [];
+	public static var listByName(default, null):Map<String, SongFormat> = [];
 
 	public static function prefetch():Void
 	{
@@ -44,6 +45,7 @@ class SongList
 						if (song == unsortedSong.name)
 						{
 							list.push(unsortedSong);
+							listByName.set(song, unsortedSong);
 							unsorted.splice(unsorted.indexOf(unsortedSong), 1);
 							continue;
 						}
@@ -53,7 +55,11 @@ class SongList
 		}
 
 		while (unsorted.length > 0)
-			list.push(unsorted.shift());
+		{
+			var song = unsorted.shift();
+			list.push(song);
+			listByName.set(song.name, song);
+		}
 	}
 
 	public static function refresh():Void
