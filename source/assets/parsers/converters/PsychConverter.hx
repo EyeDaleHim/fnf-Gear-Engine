@@ -49,6 +49,8 @@ class PsychConverter
 
 		if (file != null)
 		{
+			file = file.song;
+
 			// meta, from the chart
 			chart.characters = [
 				file.player1 ?? "bf",
@@ -79,7 +81,8 @@ class PsychConverter
 				var sections:Array<Dynamic> = file.notes;
 				for (section in sections)
 				{
-					var notes:Array<Dynamic> = section.sectionNotes;
+					trace(section);
+					var notes:Array<Dynamic> = section.sectionNotes ?? section.notes;
 					for (note in notes)
 					{
 						var daStrumTime:Float = note[0];
@@ -124,7 +127,7 @@ class PsychConverter
 					}
 				}
 
-				if (usesNoteTypes)
+				if (!usesNoteTypes)
 					Reflect.deleteField(chart, "noteTypes");
 			}
 
