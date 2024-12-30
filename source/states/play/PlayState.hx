@@ -2,10 +2,9 @@ package states.play;
 
 import assets.formats.ChartFormat;
 import assets.formats.SongFormat;
-
 import objects.play.Countdown;
 import objects.play.PlayField;
-
+import openfl.events.KeyboardEvent;
 import lime.app.Future;
 
 typedef Level =
@@ -34,6 +33,12 @@ class PlayState extends MainState
 			}
 		}, true);
 	}
+
+	/*final defaultChart = {
+
+	};*/
+
+	public var controls:Array<Control> = [Control.NOTE_LEFT, Control.NOTE_DOWN, Control.NOTE_UP, Control.NOTE_RIGHT];
 
 	public var tweenManager:FlxTweenManager;
 	public var timerManager:FlxTimerManager;
@@ -69,6 +74,9 @@ class PlayState extends MainState
 
 		tweenManager = new FlxTweenManager();
 		timerManager = new FlxTimerManager();
+
+		add(tweenManager);
+		add(timerManager);
 
 		playfield = new PlayField(tweenManager, timerManager, 2);
 		playfield.camera = hudCamera;
@@ -106,13 +114,21 @@ class PlayState extends MainState
 
 		FlxG.cameras.add(hudCamera);
 
-		FlxTimer.wait(0.5, () ->
+		var tmr = FlxTimer.wait(0.5, () ->
 		{
 			playfield.countdown.start(conductor.crochet / 1000, startSong);
+			for (strumline in playfield.strumlines)
+			{
+				strumline.fadeIn(tweenManager, timerManager);
+			}
 		});
+		tmr.manager = timerManager;
 
 		conductor.position = 0;
 		conductor.bpm = chart?.bpm ?? song?.bpm ?? 100;
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
 
 		super.create();
 	}
@@ -128,6 +144,63 @@ class PlayState extends MainState
 	override public function update(elapsed:Float)
 	{
 		super.update(elapsed);
+	}
+
+	public function keyPress(event:KeyboardEvent)
+	{
+		var dir:Int = checkKeyCode(event.keyCode);
+
+		if (dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
+		{
+			var confirm:Bool = false;
+
+			if (!confirm)
+			{
+				for (strum in playfield.strumlines)
+				{
+					strum.members[dir].playAnimation(strum.members[dir].pressAnim, true);
+					strum.members[dir].decrementLength = false;
+				}
+			}
+		}
+	}
+
+	public function keyRelease(event:KeyboardEvent)
+	{
+		var dir:Int = checkKeyCode(event.keyCode);
+
+		if (dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
+		{
+			for (strum in playfield.strumlines)
+			{
+				strum.members[dir].playAnimation(strum.members[dir].staticAnim, true);
+				strum.members[dir].decrementLength = true;
+			}
+		}
+	}
+
+	public function checkKeyCode(keyCode:Int = -1)
+	{
+		if (keyCode != -1)
+		{
+			for (control in controls)
+			{
+				for (key in control.keys)
+				{
+					if (key == keyCode)
+						return controls.indexOf(control);
+				}
+			}
+		}
+		return -1;
+	}
+
+	override function startOutro(onOutroComplete:Void->Void)
+	{
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, keyRelease);
+
+		super.startOutro(onOutroComplete);
 	}
 
 	function get_chart():ChartFormat

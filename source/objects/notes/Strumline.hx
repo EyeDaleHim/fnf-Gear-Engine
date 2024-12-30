@@ -7,6 +7,9 @@ import objects.notes.StrumNote;
 // change to account for custom skins
 class Strumline extends FlxTypedSpriteGroup<StrumNote>
 {
+    public var tweenManager:FlxTweenManager;
+	public var timerManager:FlxTimerManager;
+
     public function new(notes:Int = 4, index:Int = 0, gap:Float = 0.0, y:Float = 0.0)
     {
         super();
@@ -19,13 +22,24 @@ class Strumline extends FlxTypedSpriteGroup<StrumNote>
         for (i in 0...notes)
         {
             var strum:StrumNote = new StrumNote(i);
+            strum.ID = i;
             strum.x = (Note.noteWidth * i);
             add(strum);
         }
     }
 
-    public function fadeIn():Void
+    public function fadeIn(?tweenManager:FlxTweenManager, ?timerManager:FlxTimerManager):Void
     {
+        this.timerManager = timerManager ?? FlxTimer.globalManager;
+		this.tweenManager = tweenManager ?? FlxTween.globalManager;
 
+        for (strum in members)
+        {
+            var formerOffsetY:Float = strum.offset.y;
+
+            strum.alpha = 0.0;
+            strum.offset.y += 10.0;
+            tweenManager.tween(strum, {"offset.y": formerOffsetY, alpha: 1.0}, 1.0, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * strum.ID)});
+        }
     }
 }

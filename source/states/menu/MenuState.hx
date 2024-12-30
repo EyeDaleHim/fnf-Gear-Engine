@@ -66,9 +66,9 @@ class MenuState extends Page
 				selectItem();
 			else
 			{
-				if (FlxG.keys.justPressed.UP)
+				if (Control.UI_UP.justPressed)
 					changeItem(-1);
-				if (FlxG.keys.justPressed.DOWN)
+				if (Control.UI_DOWN.justPressed)
 					changeItem(1);
 			}
 		}

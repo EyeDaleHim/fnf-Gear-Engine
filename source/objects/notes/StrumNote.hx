@@ -3,6 +3,7 @@ package objects.notes;
 class StrumNote extends FlxSprite
 {
 	public var animationLength:Float = 0.0;
+	public var decrementLength:Bool = true;
 
 	public var direction:Int = 0;
 	public var confirmAnim:String = 'confirm';
@@ -41,7 +42,10 @@ class StrumNote extends FlxSprite
 	override public function update(elapsed:Float)
 	{
 		if (animationLength > 0.0)
-			animationLength -= elapsed;
+		{
+			if (decrementLength)
+				animationLength -= elapsed;
+		}
         else if (animation.curAnim?.name != staticAnim)
             playAnimation(staticAnim);
 
@@ -53,6 +57,7 @@ class StrumNote extends FlxSprite
 		animation.play(name, force);
 
 		centerOffsets();
+		centerOrigin();
 
 		if (animOffsets.exists(name))
 			offset += animOffsets.get(name);

@@ -75,7 +75,6 @@ import sys.io.File;
 #end
 #end
 
-import haxe.Json;
 import haxe.Serializer;
 import haxe.Unserializer;
 import haxe.io.Bytes;
@@ -83,4 +82,5 @@ import haxe.io.Path;
 
 using StringTools;
 using Math;
+using haxe.Json;
 using utils.MathUtils;
