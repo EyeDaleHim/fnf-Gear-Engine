@@ -144,7 +144,8 @@ class FreeplayState extends Page
 			}
 		}
 
-		PlayState.loadGame([{song: SongList.list[index], chart: null}], false, (newState) ->
+		trace('not null? song: ${SongList.list[index] != null}, chart: ${ChartList.getChart(SongList.list[index].name, diffIndex) != null}');
+		PlayState.loadGame([{song: SongList.list[index], chart: ChartList.getChart(SongList.list[index].name, diffIndex)}], false, (newState) ->
 		{
 			parent.conductor.clear();
 

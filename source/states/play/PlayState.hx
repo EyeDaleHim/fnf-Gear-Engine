@@ -2,6 +2,7 @@ package states.play;
 
 import assets.formats.ChartFormat;
 import assets.formats.SongFormat;
+import objects.notes.Note;
 import objects.play.Countdown;
 import objects.play.PlayField;
 import openfl.events.KeyboardEvent;
@@ -15,6 +16,7 @@ typedef Level =
 
 class PlayState extends MainState
 {
+	public static var instance:PlayState;
 	public static function loadGame(playlist:Array<Level>, story:Bool, finishCallback:PlayState->Void):Void
 	{
 		var future:Future<Void> = new Future<Void>(() ->
@@ -22,6 +24,7 @@ class PlayState extends MainState
 			try
 			{
 				var newState:PlayState = new PlayState(playlist, story);
+				instance = newState;
 
 				if (finishCallback != null)
 					finishCallback(newState);
@@ -33,10 +36,6 @@ class PlayState extends MainState
 			}
 		}, true);
 	}
-
-	/*final defaultChart = {
-
-	};*/
 
 	public var controls:Array<Control> = [Control.NOTE_LEFT, Control.NOTE_DOWN, Control.NOTE_UP, Control.NOTE_RIGHT];
 
@@ -97,6 +96,8 @@ class PlayState extends MainState
 			trackList[i].persist = true;
 		}
 		_trackList = trackList;
+
+		loadSong();
 	}
 
 	override public function create()
@@ -116,7 +117,7 @@ class PlayState extends MainState
 
 		var tmr = FlxTimer.wait(0.5, () ->
 		{
-			playfield.countdown.start(conductor.crochet / 1000, startSong);
+			playfield.start(conductor.crochet / 1000, startSong);
 			for (strumline in playfield.strumlines)
 			{
 				strumline.fadeIn(tweenManager, timerManager);
@@ -139,10 +140,34 @@ class PlayState extends MainState
 		conductor.play();
 	}
 
-	public function loadSong():Void {}
+	public function loadSong():Void 
+	{
+		var noteList:Array<Note> = [];
+
+		if (chart != null)
+		{
+			for (i in 0...chart.notes?.length)
+			{
+				var note:Note = chart.notes[i];
+				var copiedNote:Note = [];
+
+				for (j in 0...note.length)
+				{
+					copiedNote[j] = note[j];
+				}
+				if (copiedNote != null)
+					noteList.push(copiedNote);
+			}
+		}
+
+		playfield.pendingNotes = noteList;
+	}
 
 	override public function update(elapsed:Float)
 	{
+		if (playfield.positionControlled)
+			playfield.position = conductor.position;
+
 		super.update(elapsed);
 	}
 
@@ -154,14 +179,19 @@ class PlayState extends MainState
 		{
 			var confirm:Bool = false;
 
-			if (!confirm)
+			playfield.forEachStrumPlayable((strum) ->
 			{
-				for (strum in playfield.strumlines)
+				if (!confirm)
 				{
 					strum.members[dir].playAnimation(strum.members[dir].pressAnim, true);
 					strum.members[dir].decrementLength = false;
 				}
-			}
+				else
+				{
+					strum.members[dir].playAnimation(strum.members[dir].confirmAnim, true);
+					strum.members[dir].decrementLength = false;
+				}
+			}, chart?.playables);
 		}
 	}
 
@@ -201,6 +231,12 @@ class PlayState extends MainState
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, keyRelease);
 
 		super.startOutro(onOutroComplete);
+	}
+
+	override function destroy()
+	{ 
+		instance = null;
+		super.destroy();
 	}
 
 	function get_chart():ChartFormat

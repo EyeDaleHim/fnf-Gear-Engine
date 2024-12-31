@@ -45,7 +45,7 @@ class Countdown extends FlxTypedGroup<FlxSprite>
 		}
 	}
 
-	public function start(interval:Float = 0.5, ?finishCallback:Void->Void)
+	public function start(interval:Float = 0.5, ?finishCallback:Void->Void):Float
 	{
 		timerManager ??= FlxTimer.globalManager;
 		tweenManager ??= FlxTween.globalManager;
@@ -83,5 +83,7 @@ class Countdown extends FlxTypedGroup<FlxSprite>
 			}
 		}, len);
 		tmr.manager = timerManager;
+
+		return interval * len;
 	}
 }

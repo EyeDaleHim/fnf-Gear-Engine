@@ -39,6 +39,7 @@ import flixel.util.FlxSpriteUtil;
 
 import assets.Assets;
 
+import backend.engine.ChartList;
 import backend.engine.SongList;
 import backend.engine.WeekList;
 
@@ -84,3 +85,6 @@ using StringTools;
 using Math;
 using haxe.Json;
 using utils.MathUtils;
+#if (!flash && !macro)
+using utils.SpriteUtils;
+#end

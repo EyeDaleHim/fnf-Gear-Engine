@@ -2,7 +2,7 @@ package assets.formats;
 
 typedef SongFormat = {
     // names
-    var name:String; // name of the song, for files
+    var ?name:String; // name of the song, for files, if blank, it just refers to the parent folder's name instead
     var ?display:String; // song to be displayed in story and freeplay, uses name if invalid
 
     // freeplay

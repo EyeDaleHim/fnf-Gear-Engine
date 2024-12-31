@@ -26,6 +26,7 @@ class Main extends DisplayObjectContainer
 		Lib.current.addChild(debugInfo);
 
 		FlxG.console.registerClass(Assets);
+		FlxG.console.registerClass(SongList);
 
 		FlxTween.num(0.0, 1.0, (v) ->
 		{

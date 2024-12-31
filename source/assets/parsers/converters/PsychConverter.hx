@@ -81,7 +81,6 @@ class PsychConverter
 				var sections:Array<Dynamic> = file.notes;
 				for (section in sections)
 				{
-					trace(section);
 					var notes:Array<Dynamic> = section.sectionNotes ?? section.notes;
 					for (note in notes)
 					{

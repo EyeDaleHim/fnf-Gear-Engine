@@ -30,5 +30,6 @@ class Preloader extends FlxBasePreloader
 	{
 		WeekList.prefetch();
 		SongList.prefetch();
+		ChartList.prefetch();
 	}
 }

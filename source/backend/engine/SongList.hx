@@ -1,6 +1,7 @@
 package backend.engine;
 
 import assets.formats.SongFormat;
+import assets.formats.ChartFormat;
 
 class SongList
 {
@@ -11,6 +12,7 @@ class SongList
 
 	public static var list(default, null):Array<SongFormat> = [];
 	public static var listByName(default, null):Map<String, SongFormat> = [];
+	public static var chartsByName(default, null):Map<String, Map<String, ChartFormat>> = [];
 
 	public static function prefetch():Void
 	{
@@ -28,7 +30,10 @@ class SongList
 
 					if (!FileSystem.isDirectory(filePath) && file.toLowerCase() == metaDefinition)
 					{
-						unsorted.push(cast Json.parse(Assets.contents(filePath)));
+						var songMeta:SongFormat = cast Json.parse(Assets.contents(filePath));
+						if (songMeta.name == null)
+							songMeta.name = folder;
+						unsorted.push(songMeta);
 					}
 				}
 			}
@@ -46,6 +51,7 @@ class SongList
 						{
 							list.push(unsortedSong);
 							listByName.set(song, unsortedSong);
+							chartsByName.set(song, []);
 							unsorted.splice(unsorted.indexOf(unsortedSong), 1);
 							continue;
 						}
@@ -59,6 +65,7 @@ class SongList
 			var song = unsorted.shift();
 			list.push(song);
 			listByName.set(song.name, song);
+			chartsByName.set(song.name, []);
 		}
 	}
 
