@@ -50,6 +50,11 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
     function set_singAnimation(value:String):String
         return this[6] = value;
 
+    inline public function canBeHit(position:Float, safeZone:Float, ?earlyMult:Float = 1.0, ?lateMult:Float = 1.0):Bool
+    {
+        return (time > (position - safeZone) * earlyMult && time < (position + safeZone) * lateMult);
+    }
+
     // for backwards compat
     public var length(get, never):Int;
 

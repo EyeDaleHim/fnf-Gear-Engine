@@ -37,7 +37,7 @@ class TempPsychConverter
                 var utf:String = file.data.readUTFBytes(file.data.length);
                 
                 var newChart = assets.parsers.converters.PsychConverter.fromChart(Json.parse(utf));
-                list.push({chart: Json.stringify(newChart), name: file.name});
+                list.push({chart: Json.stringify(newChart, "\t"), name: file.name});
 			}
 
             for (item in list)

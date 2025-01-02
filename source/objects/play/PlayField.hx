@@ -1,13 +1,19 @@
 package objects.play;
 
+import flixel.util.FlxSort;
 import objects.notes.Strumline;
 import objects.notes.StrumNote;
 import objects.notes.NoteObject;
 import objects.notes.Note;
+import states.play.PlayState.Level;
 
 class PlayField extends FlxGroup
 {
 	public static var noteRecycleAmount:Int = 32;
+
+	public var safeInputFrames:Float = 10.0;
+
+	public var level:Level;
 
 	public var positionControlled(default, null):Bool = false;
 
@@ -67,14 +73,21 @@ class PlayField extends FlxGroup
 					if (noteObject.data == null)
 						noteObject.setData(note);
 
-					_removeNotes.push(note);				
+					_removeNotes.push(note);
 				}
 				else
 					break;
 			}
 
-			for (note in _removeNotes.splice(0, _removeNotes.length))
-				pendingNotes.remove(note);
+			if (_removeNotes.length > 0)
+			{
+				for (note in _removeNotes.splice(0, _removeNotes.length))
+				{
+					pendingNotes.remove(note);
+				}
+			}
+
+			pendingNotes.sort(sortNotes);
 		}
 
 		notes.forEachAlive(forEachNote);
@@ -123,26 +136,40 @@ class PlayField extends FlxGroup
 	private function forEachNote(note:NoteObject):Void
 	{
 		// stupid fucking magic number
-		var distance:Float = (0.45 * (position - note.data.time) * speed);
+		var distance:Float = (NoteObject.pixelsPerMS * (position - note.data.time) * speed);
 
 		if (strumlines[note.data.strumIndex] == null)
 		{
-			note.kill();
+			note.killNote();
 			return;
 		}
 
 		var strumline:Strumline = strumlines[note.data.strumIndex];
 		var strumNote:StrumNote = strumline.members[note.data.lane % strumline.length];
 
+		note.scrollSpeed = speed;
 		note.centerOverlay(strumNote, X);
 		note.y = strumNote.y - distance;
+
+		if (level?.chart != null)
+		{
+			var playable:Bool = level.chart.playables[note.data.strumIndex] ?? false;
+			if (!playable && note.data.time - position < 0)
+				note.killNote();
+		}
 	}
 
 	private function noteFactory(note:Note):NoteObject
 	{
 		var obj:NoteObject = new NoteObject();
 		obj.setData(note);
+		obj.revive();
 
 		return obj;
+	}
+
+	private function sortNotes(note1:Note, note2:Note):Int
+	{
+		return FlxSort.byValues(FlxSort.ASCENDING, note1.time, note2.time);
 	}
 }

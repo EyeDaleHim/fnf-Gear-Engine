@@ -3,6 +3,7 @@ package states.play;
 import assets.formats.ChartFormat;
 import assets.formats.SongFormat;
 import objects.notes.Note;
+import objects.notes.NoteObject;
 import objects.play.Countdown;
 import objects.play.PlayField;
 import openfl.events.KeyboardEvent;
@@ -17,6 +18,7 @@ typedef Level =
 class PlayState extends MainState
 {
 	public static var instance:PlayState;
+
 	public static function loadGame(playlist:Array<Level>, story:Bool, finishCallback:PlayState->Void):Void
 	{
 		var future:Future<Void> = new Future<Void>(() ->
@@ -43,6 +45,7 @@ class PlayState extends MainState
 	public var timerManager:FlxTimerManager;
 
 	public var songStarted:Bool = false;
+	public var songEnded:Bool = false;
 
 	public var pauseMenu:PauseSubstate;
 
@@ -78,6 +81,7 @@ class PlayState extends MainState
 		add(timerManager);
 
 		playfield = new PlayField(tweenManager, timerManager, 2);
+		playfield.level = playlist[0];
 		playfield.camera = hudCamera;
 		add(playfield);
 
@@ -115,6 +119,16 @@ class PlayState extends MainState
 
 		FlxG.cameras.add(hudCamera);
 
+		startCountdown();
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
+
+		super.create();
+	}
+
+	public function startCountdown():Void
+	{
 		var tmr = FlxTimer.wait(0.5, () ->
 		{
 			playfield.start(conductor.crochet / 1000, startSong);
@@ -127,11 +141,6 @@ class PlayState extends MainState
 
 		conductor.position = 0;
 		conductor.bpm = chart?.bpm ?? song?.bpm ?? 100;
-
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
-
-		super.create();
 	}
 
 	public function startSong():Void
@@ -140,7 +149,7 @@ class PlayState extends MainState
 		conductor.play();
 	}
 
-	public function loadSong():Void 
+	public function loadSong():Void
 	{
 		var noteList:Array<Note> = [];
 
@@ -177,7 +186,20 @@ class PlayState extends MainState
 
 		if (dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
 		{
-			var confirm:Bool = false;
+			final sortedNotes:Array<NoteObject> = playfield.notes.members.filter((noteObject:NoteObject) ->
+			{
+				var note = noteObject.data;
+				if (note == null)
+					return false;
+
+				return (note.canBeHit(playfield.position, (playfield.safeInputFrames / 60.0) * 1000.0)
+					&& note.lane == dir
+					&& chart?.playables[note.strumIndex]);
+			});
+
+			sortedNotes.sort((a, b) -> Std.int(a.data?.time - b.data?.time));
+
+			var confirm:Bool = sortedNotes.length > 0;
 
 			playfield.forEachStrumPlayable((strum) ->
 			{
@@ -192,6 +214,12 @@ class PlayState extends MainState
 					strum.members[dir].decrementLength = false;
 				}
 			}, chart?.playables);
+
+			if (!confirm)
+				return;
+
+			var firstNote:NoteObject = sortedNotes[0];
+			firstNote.killNote();
 		}
 	}
 
@@ -234,7 +262,7 @@ class PlayState extends MainState
 	}
 
 	override function destroy()
-	{ 
+	{
 		instance = null;
 		super.destroy();
 	}
