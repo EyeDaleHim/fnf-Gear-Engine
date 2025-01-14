@@ -1,7 +1,7 @@
 {
     "name": "winter-horrorland",
     "display": "Winter Horrorland",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "monster",
     "characters": [
         "gf",
         "bf"

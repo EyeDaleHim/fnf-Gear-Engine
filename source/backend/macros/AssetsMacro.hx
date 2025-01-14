@@ -11,7 +11,9 @@ class AssetsMacro
 	public static macro function build()
 	{
 		#if !display
-		var target:String = haxe.macro.Context.getDefines()['target.name'];
+		var config = haxe.macro.Compiler.getConfiguration();
+
+		var target:String = Std.string(config.platform);
 
 		if (target == 'cpp')
 		{

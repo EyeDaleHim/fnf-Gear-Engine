@@ -1,7 +1,7 @@
 {
     "name": "eggnog",
     "display": "Eggnog",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "parents",
     "characters": [
         "gf",
         "bf"
@@ -15,7 +15,8 @@
         "pico-easy",
         "pico-normal",
         "pico-hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

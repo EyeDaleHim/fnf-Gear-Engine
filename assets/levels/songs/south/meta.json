@@ -1,7 +1,7 @@
 {
     "name": "south",
     "display": "South",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "spooky",
     "characters": [
         "gf",
         "bf"
@@ -15,7 +15,8 @@
         "pico-easy",
         "pico-normal",
         "pico-hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

@@ -10,11 +10,11 @@ class Countdown extends FlxTypedGroup<FlxSprite>
 	public var soundList:Array<String> = ["three", "two", "one", "go"];
 
 	public var tweenManager:FlxTweenManager;
-	public var timerManager:FlxTimerManager;
+	public var timerManager:TimerManager;
 
 	private var list:Array<FlxSprite> = [];
 
-	public function new(tweenManager:FlxTweenManager, timerManager:FlxTimerManager, ?graphicList:Array<String>, ?soundList:Array<String>)
+	public function new(tweenManager:FlxTweenManager, timerManager:TimerManager, ?graphicList:Array<String>, ?soundList:Array<String>)
 	{
 		super();
 

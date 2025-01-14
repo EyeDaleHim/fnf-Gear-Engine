@@ -23,6 +23,8 @@ typedef ChartFormat = {
 
     var ?tracks:Array<String>;
 
+    var ?ratingFormat:GameplayRatingFormat;
+
     var ?version:String; // version used to identify gear engine charts
 };
 

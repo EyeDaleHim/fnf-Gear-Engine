@@ -1,7 +1,7 @@
 {
     "name": "stress",
     "display": "Stress",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "tankman",
     "characters": [
         "gf",
         "bf"

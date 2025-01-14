@@ -1,7 +1,7 @@
 {
     "name": "test",
     "display": "Test",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "",
     "characters": [
         "gf",
         "bf"

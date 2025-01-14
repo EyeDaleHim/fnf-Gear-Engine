@@ -13,6 +13,7 @@ class SystemAssets
 	private static var objectsCache:Map<String, Dynamic> = [];
 	private static var soundCache:Map<String, Sound> = [];
 	private static var fontCache:Map<String, Font> = [];
+	private static var framesCache:Map<String, FlxAtlasFrames> = [];
 
 	private static var dummySound:Sound = new Sound();
 
@@ -126,13 +127,22 @@ class SystemAssets
 		return graphic;
 	}
 
-	public static function frames(path:String, ?xmlPath:String):FlxAtlasFrames
+	public static function frames(path:String, ?xmlPath:String, ?cache:Bool = true):FlxAtlasFrames
 	{
+		var cacheRef:String = '$path-$xmlPath';
+
 		if (xmlPath == null)
 			xmlPath = imagePath(path).replace('.png', '.xml');
 
-		if (exists(path, imagePath) && exists(xmlPath))
-			return FlxAtlasFrames.fromSparrow(image(path), contents(xmlPath));
+		if (framesCache.exists(cacheRef))
+			return framesCache.get(cacheRef);
+		else if (exists(path, imagePath) && exists(xmlPath))
+		{
+			var frame = FlxAtlasFrames.fromSparrow(image(path), contents(xmlPath));
+			if (cache)
+				framesCache.set(cacheRef, frame);
+			return frame;
+		}
 
 		return null;
 	}

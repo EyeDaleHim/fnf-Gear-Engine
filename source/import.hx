@@ -32,7 +32,6 @@ import flixel.sound.FlxSound;
 
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import flixel.util.FlxTimer.FlxTimerManager;
 import flixel.util.FlxSignal;
 import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.util.FlxSpriteUtil;
@@ -66,6 +65,8 @@ import states.menu.FreeplayState;
 import states.play.PlayState;
 
 import substates.PauseSubstate;
+
+import utils.helpers.TimerManager;
 
 using flixel.util.FlxColorTransformUtil;
 #end

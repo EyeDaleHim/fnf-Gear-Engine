@@ -14,7 +14,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" allowHighDPI="true"/>
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="false" />
@@ -26,6 +26,10 @@
 
 	<!--If files like spritesheets and song data should be merged for consolidation-->
 	<define name="MERGE_ESSENTIALS" if="final"/>
+	<define name="SLOW_ASS_PC" if="debug"/>
+	<define name="HARDWARE_ENABLED" />
+
+	<define name="TRACY_ENABLED" if="cpp"/>
 
 	<!-- _____________________________ Path Settings ____________________________ -->
 
@@ -81,9 +85,17 @@
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<haxeflag name="--macro backend.macros.AssetsMacro.build()"/>
-
 	<prebuild haxe="build/Prebuild.hx"/>
 	<postbuild haxe="build/Postbuild.hx"/>
+
+	<section if="TRACY_ENABLED">
+		<haxedef name="HXCPP_TELEMETRY"/>
+		<haxedef name="HXCPP_TRACY"/>
+		<haxedef name="HXCPP_TRACY_MEMORY"/>
+		<haxedef name="HXCPP_TRACY_ON_DEMAND"/>
+	</section>
+
+	<haxedef name="message.reporting" value="pretty" />
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->
 </project>

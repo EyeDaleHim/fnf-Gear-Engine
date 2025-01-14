@@ -11,13 +11,18 @@ class PageState extends MainState
 
 	public var music:FlxSound;
 
-	public static function addPage(name:String, page:Page):Void
+	public static function addPage(name:String, page:()->Page):Void
 	{
-		pageInstances.set(name, page);
-		page.kill();
+		if (pageInstances.exists(name))
+			return;
+
+		var pageInstance:Page = page();
+
+		pageInstances.set(name, pageInstance);
+		pageInstance.kill();
 
 		if (instance != null)
-			instance.add(page);
+			instance.add(pageInstance);
 	}
 
 	public function new(page:String)
@@ -35,6 +40,7 @@ class PageState extends MainState
 	{
 		super.create();
 
+		Transition.instance.transitionOut();
 		Transition.instance.skipTransition();
 		switchPage(_pageHelper);
 	}

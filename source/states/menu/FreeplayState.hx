@@ -1,5 +1,8 @@
 package states.menu;
 
+import assets.formats.SongFormat;
+import assets.formats.ChartFormat;
+import objects.Icon;
 import lime.app.Future;
 import states.internal.Page;
 
@@ -10,6 +13,7 @@ class FreeplayState extends Page
 
 	public var background:FlxSprite;
 	public var songItems:AtlasTextGroup;
+	public var iconGroup:FlxTypedGroup<Icon>;
 
 	public var scoreBox:Box;
 	public var scoreText:Text;
@@ -19,6 +23,8 @@ class FreeplayState extends Page
 
 	private var musicFuture:Future<Void>;
 	private var playedSongIndex:Int = -1;
+	private var playedDiffIndex:Int = -1;
+	private var playedTracks:Array<String> = [];
 
 	private var waitPreviewTimer:FlxTimer;
 	private var previewTimer:FlxTimer;
@@ -34,6 +40,7 @@ class FreeplayState extends Page
 		add(background);
 
 		var songPlaylist:Array<String> = [for (song in SongList.list) song.display ?? song.name];
+		var iconDisplays:Array<String> = [for (song in SongList.list) song.freeplayDisplay ?? ""];
 
 		songItems = new AtlasTextGroup(songPlaylist, (text) ->
 		{
@@ -41,6 +48,46 @@ class FreeplayState extends Page
 			text.alpha = 0.6;
 		});
 		add(songItems);
+
+		iconGroup = new FlxTypedGroup<Icon>();
+
+		var i:Int = 0;
+		for (iconName in iconDisplays)
+		{
+			var icon:Icon = new Icon(Icon.freeplayPath, iconName ?? "bf");
+			icon.ID = i;
+
+			if (iconName.length == 0)
+				icon.color = 0xFF767676;
+
+			if (icon.frames != null)
+			{
+				icon.animation.addByPrefix('idle', 'idle', 24, true);
+				icon.animation.addByPrefix('confirm', 'confirm0', 24, false);
+				icon.animation.addByPrefix('confirm-hold', 'confirm-hold', 24, false);
+
+				icon.setGraphicSize(150);
+				icon.updateHitbox();
+			}
+			else
+			{
+				icon.animation.add('idle', [0]);
+			}
+
+			icon.animation.onFinish.add((name:String) ->
+			{
+				if (name == "confirm")
+					icon.animation.play('confirm-hold');
+			});
+
+			icon.animation.play('idle');
+
+			iconGroup.add(icon);
+
+			i++;
+		}
+
+		add(iconGroup);
 
 		scoreBox = new Box(FlxG.width * 0.6, 0, FlxG.width * 0.4, 66, 16, 2);
 		scoreBox.color = 0xFF000000;
@@ -111,6 +158,12 @@ class FreeplayState extends Page
 		scoreBox.x = FlxG.width - scoreBox.width - 4.0;
 
 		super.update(elapsed);
+
+		iconGroup.forEach((icon:Icon) ->
+		{
+			icon.x = songItems.members[icon.ID].x + songItems.members[icon.ID].width + 10;
+			icon.centerOverlay(songItems.members[icon.ID], Y);
+		});
 	}
 
 	override public function revive()
@@ -144,13 +197,17 @@ class FreeplayState extends Page
 			}
 		}
 
-		trace('not null? song: ${SongList.list[index] != null}, chart: ${ChartList.getChart(SongList.list[index].name, diffIndex) != null}');
-		PlayState.loadGame([{song: SongList.list[index], chart: ChartList.getChart(SongList.list[index].name, diffIndex)}], false, (newState) ->
-		{
-			parent.conductor.clear();
+		if (iconGroup.members[index].animation.exists('confirm'))
+			iconGroup.members[index].animation.play('confirm');
 
-			FlxG.switchState(() -> newState);
-		});
+		PlayState.loadGame([
+			{song: SongList.list[index], chart: ChartList.getChart(SongList.list[index].name, diffIndex)}
+		], false, (newState) ->
+			{
+				parent.conductor.clear();
+
+				FlxG.switchState(() -> newState);
+			});
 	}
 
 	public function changeItem(change:Int = 0):Void
@@ -160,13 +217,11 @@ class FreeplayState extends Page
 		if (change != 0)
 			FlxG.sound.play(Assets.sound("sfx/menu/scrollMenu"), 0.5);
 
-		songItems.selectedText.alpha = 0.6;
+		iconGroup.members[songItems.selected].alpha = songItems.selectedText.alpha = 0.6;
 		songItems.selected = index;
-		songItems.selectedText.alpha = 1.0;
+		iconGroup.members[songItems.selected].alpha = songItems.selectedText.alpha = 1.0;
 
 		changeDifficulty();
-
-		startPreviewTimer();
 	}
 
 	public function changeDifficulty(change:Int = 0)
@@ -180,6 +235,8 @@ class FreeplayState extends Page
 		difficultyText.text = '< ${selectedSong.difficulties[diffIndex].toUpperCase()} >';
 
 		randomScore();
+
+		startPreviewTimer();
 	}
 
 	private var twn:FlxTween;
@@ -199,8 +256,9 @@ class FreeplayState extends Page
 		waitPreviewTimer.cancel();
 		waitPreviewTimer.start(1.0, (tmr:FlxTimer) ->
 		{
-			if (force || playedSongIndex != index)
+			if (force || (playedSongIndex != index || playedDiffIndex != diffIndex))
 			{
+				playedDiffIndex = diffIndex;
 				playedSongIndex = index;
 				musicFuture = new Future<Void>(loadSelectedSong, true);
 			}
@@ -209,24 +267,40 @@ class FreeplayState extends Page
 
 	private function loadSelectedSong():Void
 	{
-		var item = SongList.list[playedSongIndex];
-		if (item.tracks == null || item.tracks.length == 0)
-			return;
+		// NOTE: I think I need to improve how the chart is grabbed here
+		var songItem:SongFormat = SongList.list[playedSongIndex];
+		var chartItem:ChartFormat = SongList.chartsByName.get(songItem.name).get(songItem.difficulties[diffIndex]);
 
-		for (track in item.tracks)
+		var item:Dynamic = null;
+		var tracks:Array<String> = [];
+
+		if (chartItem?.tracks?.length > 0)
 		{
-			Assets.levelSongTrack(item.name, track, true);
+			tracks = chartItem.tracks;
+			item = chartItem;
+
+			trace('got $tracks from chart');
+		}
+		else if (songItem?.tracks?.length > 0)
+		{
+			tracks = songItem.tracks;
+			item = songItem;
+
+			trace('got $tracks from song');
 		}
 
-		songLoadComplete();
+		for (track in tracks)
+		{
+			Assets.levelSongTrack(songItem.name, track, true);
+		}
+
+		songLoadComplete(songItem.name, tracks);
 	}
 
-	private function songLoadComplete():Void
+	private function songLoadComplete(name:String, tracks:Array<String>):Void
 	{
-		if (!exists)
+		if (!exists || tracks?.length == 0)
 			return;
-
-		var item = SongList.list[playedSongIndex];
 
 		if (parent.music.playing)
 		{
@@ -249,12 +323,12 @@ class FreeplayState extends Page
 
 		previewTimer = FlxTimer.wait(1.2, () ->
 		{
-			for (i in 0...item.tracks.length)
+			for (i in 0...tracks.length)
 			{
 				if (musics[i] == null)
 					musics[i] = new FlxSound();
 
-				musics[i].loadEmbedded(Assets.levelSongTrack(item.name, item.tracks[i], true));
+				musics[i].loadEmbedded(Assets.levelSongTrack(name, tracks[i], true));
 				musics[i].looped = true;
 				musics[i].persist = true;
 			}

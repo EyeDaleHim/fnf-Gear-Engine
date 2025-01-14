@@ -1,7 +1,7 @@
 {
     "name": "thorns",
     "display": "Thorns",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "spirit",
     "characters": [
         "gf",
         "bf"
@@ -12,7 +12,8 @@
         "easy",
         "normal",
         "hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

@@ -10,6 +10,9 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
     public var sustain(get, set):Float;
     public var characterTarget(get, set):String;
     public var singAnimation(get, set):String;
+    public var missed(get, set):Bool;
+    public var health(get, set):Float;
+    public var missHealth(get, set):Float;
 
     function get_time()
         return this[0] ?? 0.0;
@@ -27,28 +30,46 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
         return this[2] = value ?? -1;
 
     function get_sustain():Float
-        return this[3];
+        return this[3] ?? 0.0;
 
     function set_sustain(value:Float):Float
         return this[3] = value;
 
     function get_characterTarget():String
-        return this[4];
+        return this[4] ?? "";
 
     function set_characterTarget(value:String):String
         return this[4] = value;
 
     function get_noteType():Int
-        return this[5];
+        return this[5] ?? -1;
 
     function set_noteType(value:Int):Int
         return this[5] = value;
 
     function get_singAnimation():String
-        return this[6];
+        return this[6] ?? "";
 
     function set_singAnimation(value:String):String
         return this[6] = value;
+
+    function get_missed():Bool
+        return this[7] ?? false;
+
+    function set_missed(value:Bool):Bool
+        return this[7] = value;
+
+    function get_health():Float
+        return this[8] ?? 0.5;
+
+    function set_health(value:Float):Float
+        return this[8] = value;
+
+    function get_missHealth():Float
+        return this[9] ?? 3.0;
+
+    function set_missHealth(value:Float):Float
+        return this[9] = value;
 
     inline public function canBeHit(position:Float, safeZone:Float, ?earlyMult:Float = 1.0, ?lateMult:Float = 1.0):Bool
     {
