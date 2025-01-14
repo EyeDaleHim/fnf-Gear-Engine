@@ -1,7 +1,7 @@
 {
     "name": "roses",
     "display": "Roses",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "senpai",
     "characters": [
         "gf",
         "bf"
@@ -12,7 +12,8 @@
         "easy",
         "normal",
         "hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

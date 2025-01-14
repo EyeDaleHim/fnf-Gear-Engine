@@ -1,7 +1,7 @@
 {
     "name": "bopeebo",
     "display": "Bopeebo",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "dad",
     "characters": [
         "gf",
         "bf"
@@ -15,7 +15,8 @@
         "pico-easy",
         "pico-normal",
         "pico-hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

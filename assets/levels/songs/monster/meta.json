@@ -1,7 +1,7 @@
 {
     "name": "monster",
     "display": "Monster",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "monster",
     "characters": [
         "gf",
         "bf"

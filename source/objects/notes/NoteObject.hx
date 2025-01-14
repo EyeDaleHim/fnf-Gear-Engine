@@ -1,5 +1,6 @@
 package objects.notes;
 
+import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.tile.FlxDrawQuadsItem;
 import objects.notes.Note;
@@ -18,11 +19,11 @@ class NoteObject extends FlxSprite
 	var _animTimer:Float = 0.0;
 	var _sustainAnims:Array<String> = [];
 
-	override public function new()
+	override public function new(?preallocatedFrames:FlxFramesCollection)
 	{
 		super();
 
-		frames = Assets.frames("ui/game/notes/NOTE_assets");
+		frames = preallocatedFrames ?? Assets.frames("ui/game/notes/NOTE_assets");
 
 		animation.addByPrefix("noteLEFT", "purple0", 24);
 		animation.addByPrefix("noteDOWN", "blue0", 24);
@@ -77,7 +78,7 @@ class NoteObject extends FlxSprite
 		{
 			var center:Float = height / 2;
 
-			for (camera in cameras)
+			/*for (camera in cameras)
 			{
 				if (!camera.visible || !camera.exists || !isOnScreen(camera))
 					continue;
@@ -124,7 +125,7 @@ class NoteObject extends FlxSprite
 					sustainY += sustainFrame.sourceSize.y;
 					totalSustainHeight -= sustainFrame.sourceSize.y;
 				}
-			}
+			}*/
 		}
 
 		if (parentVisible)

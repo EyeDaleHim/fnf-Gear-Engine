@@ -45,7 +45,7 @@ class Transition extends FlxBasic
 
 	public function transitionIn(duration:Float = 0.5, ?finishCallback:Void->Void):Void
 	{
-		var cam:FlxCamera = startCamera();
+		startCamera();
 
 		if (duration <= 0.0 && finishCallback != null)
 		{
@@ -67,7 +67,7 @@ class Transition extends FlxBasic
 
 	public function transitionOut(duration:Float = 0.5, ?finishCallback:Void->Void):Void
 	{
-		var cam:FlxCamera = startCamera();
+		startCamera();
 
 		if (duration <= 0.0 && finishCallback != null)
 		{

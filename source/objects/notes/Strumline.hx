@@ -8,7 +8,7 @@ import objects.notes.StrumNote;
 class Strumline extends FlxTypedSpriteGroup<StrumNote>
 {
     public var tweenManager:FlxTweenManager;
-	public var timerManager:FlxTimerManager;
+	public var timerManager:TimerManager;
 
     public function new(notes:Int = 4, index:Int = 0, gap:Float = 0.0, y:Float = 0.0)
     {
@@ -28,7 +28,7 @@ class Strumline extends FlxTypedSpriteGroup<StrumNote>
         }
     }
 
-    public function fadeIn(?tweenManager:FlxTweenManager, ?timerManager:FlxTimerManager):Void
+    public function fadeIn(?tweenManager:FlxTweenManager, ?timerManager:TimerManager):Void
     {
         this.timerManager = timerManager ?? FlxTimer.globalManager;
 		this.tweenManager = tweenManager ?? FlxTween.globalManager;

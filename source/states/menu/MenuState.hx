@@ -1,5 +1,6 @@
 package states.menu;
 
+import openfl.filters.BlurFilter;
 import states.internal.Page;
 import flixel.effects.FlxFlicker;
 
@@ -92,6 +93,8 @@ class MenuState extends Page
 
 		flicker.kill();
 		selected = false;
+
+		FlxG.camera.flashSprite.filters = [new BlurFilter(18.0, 18.0, 3)];
 
 		checkMenuSong();
 	}

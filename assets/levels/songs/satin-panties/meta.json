@@ -1,7 +1,7 @@
 {
     "name": "satin-panties",
     "display": "Satin Panties",
-    "freeplayDisplay": "gf",
+    "freeplayDisplay": "mom",
     "characters": [
         "gf",
         "bf"
@@ -12,7 +12,8 @@
         "easy",
         "normal",
         "hard",
-        "erect"
+        "erect",
+       "nightmare"
     ],
     "tracks": [
         "Inst",

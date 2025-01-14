@@ -21,28 +21,41 @@ class PlayState extends MainState
 
 	public static function loadGame(playlist:Array<Level>, story:Bool, finishCallback:PlayState->Void):Void
 	{
-		var future:Future<Void> = new Future<Void>(() ->
+		var wasError:Bool = false;
+		var future:Future<PlayState> = new Future<PlayState>(() ->
 		{
 			try
 			{
 				var newState:PlayState = new PlayState(playlist, story);
 				instance = newState;
 
-				if (finishCallback != null)
-					finishCallback(newState);
+				return instance;
 			}
 			catch (e)
 			{
+				instance = null;
+				wasError = true;
+
 				trace(e.stack);
 				trace(e.message);
+
+				return null;
 			}
+			
+			return null;
 		}, true);
+
+		future.onComplete((_) ->
+		{
+			if (!wasError && finishCallback != null)
+				finishCallback(instance);
+		});
 	}
 
 	public var controls:Array<Control> = [Control.NOTE_LEFT, Control.NOTE_DOWN, Control.NOTE_UP, Control.NOTE_RIGHT];
 
 	public var tweenManager:FlxTweenManager;
-	public var timerManager:FlxTimerManager;
+	public var timerManager:TimerManager;
 
 	public var songStarted:Bool = false;
 	public var songEnded:Bool = false;
@@ -75,7 +88,7 @@ class PlayState extends MainState
 		hudCamera.bgColor.alpha = 0;
 
 		tweenManager = new FlxTweenManager();
-		timerManager = new FlxTimerManager();
+		timerManager = new TimerManager();
 
 		add(tweenManager);
 		add(timerManager);
@@ -93,12 +106,33 @@ class PlayState extends MainState
 
 		trackSource = chart?.tracks ?? song?.tracks ?? [];
 
+		var longest:FlxSound = null;
+
+		var missing:Array<String> = [];
+
 		for (i in 0...trackSource.length)
 		{
-			trackList[i] = FlxG.sound.load(Assets.levelSongTrack(song.name, trackSource[i], true));
-			trackList[i].looped = true;
-			trackList[i].persist = true;
+			var newTrack:FlxSound;
+			newTrack = FlxG.sound.load(Assets.levelSongTrack(song.name, trackSource[i], true));
+			if (newTrack != null)
+			{
+				newTrack.looped = false;
+				newTrack.persist = true;
+				if (longest == null || longest.length < newTrack.length)
+					longest = newTrack;
+
+				trackList[i] = newTrack;
+			}
+			else
+				missing.push(trackSource[i]);
 		}
+
+		if (longest != null)
+		{
+			longest.onComplete = endSong;
+			playfield.songLength = longest.length;
+		}
+
 		_trackList = trackList;
 
 		loadSong();
@@ -106,6 +140,7 @@ class PlayState extends MainState
 
 	override public function create()
 	{
+		// TODO: find a way to do this officially!
 		@:privateAccess
 		{
 			_constructor = function():FlxState
@@ -139,7 +174,7 @@ class PlayState extends MainState
 		});
 		tmr.manager = timerManager;
 
-		conductor.position = 0;
+		conductor.position = -5000;
 		conductor.bpm = chart?.bpm ?? song?.bpm ?? 100;
 	}
 
@@ -170,6 +205,9 @@ class PlayState extends MainState
 		}
 
 		playfield.pendingNotes = noteList;
+
+		playfield.speed = chart?.speed ?? 1.0;
+		playfield.ratingsData = chart?.ratingFormat ?? song.ratingFormat ?? playfield.ratingsData;
 	}
 
 	override public function update(elapsed:Float)
@@ -184,7 +222,7 @@ class PlayState extends MainState
 	{
 		var dir:Int = checkKeyCode(event.keyCode);
 
-		if (dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
+		if (!playfield.botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
 		{
 			final sortedNotes:Array<NoteObject> = playfield.notes.members.filter((noteObject:NoteObject) ->
 			{
@@ -219,7 +257,7 @@ class PlayState extends MainState
 				return;
 
 			var firstNote:NoteObject = sortedNotes[0];
-			firstNote.killNote();
+			playfield.hitNote(firstNote, true);
 		}
 	}
 
@@ -227,13 +265,13 @@ class PlayState extends MainState
 	{
 		var dir:Int = checkKeyCode(event.keyCode);
 
-		if (dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
+		if (!playfield.botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
 		{
-			for (strum in playfield.strumlines)
+			playfield.forEachStrumPlayable((strum) ->
 			{
 				strum.members[dir].playAnimation(strum.members[dir].staticAnim, true);
 				strum.members[dir].decrementLength = true;
-			}
+			}, chart?.playables);
 		}
 	}
 
@@ -251,6 +289,47 @@ class PlayState extends MainState
 			}
 		}
 		return -1;
+	}
+
+	public function restartSong(time:Float = 0.5):Void
+	{
+		songEnded = false;
+		songStarted = false;
+
+		conductor.pause();
+
+		playfield.notes.forEachAlive((note) ->
+		{
+			tweenManager.tween(note, {alpha: 0.0}, time);
+		});
+
+		timerManager.start(time, () ->
+		{
+			loadSong();
+			playfield.position = -5000;
+
+			startCountdown();
+		});
+	}
+
+	public function endSong():Void
+	{
+		songEnded = true;
+
+		trace(playlist);
+		playlist.shift();
+		trace(playlist);
+
+		if (playlist.length > 0)
+		{
+			restartSong(1.0);
+			tweenManager.tween(playfield, {health: playfield.maxHealth / 2.0}, 0.5, {ease: FlxEase.expoOut});
+			playfield.reset();
+		}
+		else
+		{
+			FlxG.switchState(() -> new PageState('freeplay'));
+		}
 	}
 
 	override function startOutro(onOutroComplete:Void->Void)
