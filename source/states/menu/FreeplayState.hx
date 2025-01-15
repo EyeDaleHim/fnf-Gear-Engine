@@ -62,9 +62,9 @@ class FreeplayState extends Page
 
 			if (icon.frames != null)
 			{
-				icon.animation.addByPrefix('idle', 'idle', 24, true);
-				icon.animation.addByPrefix('confirm', 'confirm0', 24, false);
-				icon.animation.addByPrefix('confirm-hold', 'confirm-hold', 24, false);
+				icon.animation.addByPrefix('idle', 'idle', 10, true);
+				icon.animation.addByPrefix('confirm', 'confirm0', 10, false);
+				icon.animation.addByPrefix('confirm-hold', 'confirm-hold', 10, false);
 
 				icon.setGraphicSize(150);
 				icon.updateHitbox();
