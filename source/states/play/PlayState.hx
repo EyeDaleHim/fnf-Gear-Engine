@@ -80,8 +80,6 @@ class PlayState extends MainState
 	{
 		super();
 
-		FlxG.fixedTimestep = false;
-
 		playlist ??= [];
 
 		hudCamera = new FlxCamera();

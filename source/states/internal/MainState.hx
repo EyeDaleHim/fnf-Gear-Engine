@@ -10,7 +10,7 @@ class MainState extends FlxState
     public function new()
     {
         super();
-        FlxG.fixedTimestep = true;
+        FlxG.fixedTimestep = false;
     }
 
     override function create()
