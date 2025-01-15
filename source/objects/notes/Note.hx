@@ -13,6 +13,7 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
     public var missed(get, set):Bool;
     public var health(get, set):Float;
     public var missHealth(get, set):Float;
+    public var wasHit(get, set):Bool;
 
     function get_time()
         return this[0] ?? 0.0;
@@ -70,6 +71,12 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
 
     function set_missHealth(value:Float):Float
         return this[9] = value;
+
+    function get_wasHit():Bool
+        return this[10] ?? false;
+
+    function set_wasHit(value:Bool):Bool
+        return this[10] = value;
 
     inline public function canBeHit(position:Float, safeZone:Float, ?earlyMult:Float = 1.0, ?lateMult:Float = 1.0):Bool
     {
