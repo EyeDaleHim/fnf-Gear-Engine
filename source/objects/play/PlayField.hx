@@ -265,7 +265,12 @@ class PlayField extends FlxGroup
 			if (botplay)
 			{
 				if (note.data.time - position < 0)
-					hitNote(note, level.chart.playables[note.data.strumIndex], 0.0);
+				{
+					if (note.data.wasHit && note.data.time + note.data.sustain - position < 0)
+						note.killNote();
+					else if (!note.data.wasHit)
+						hitNote(note, level.chart.playables[note.data.strumIndex], 0.0);
+				}
 			}
 			else
 			{
@@ -273,7 +278,12 @@ class PlayField extends FlxGroup
 				if (!note.data.canBeHit(position, ratingsData.maxTiming) && note.data.time - position < ratingsData.maxTiming)
 					missNote(note);
 				else if (playable != null && !playable && note.data.time - position < 0)
-					hitNote(note);
+				{
+					if (note.data.wasHit && note.data.time + note.data.sustain - position < 0)
+						note.killNote();
+					else if (!note.data.wasHit)
+						hitNote(note);
+				}
 			}
 		}
 
@@ -359,7 +369,12 @@ class PlayField extends FlxGroup
 			changeScoreText();
 		}
 
-		noteObject.killNote();
+		noteObject.data.wasHit = true;
+
+		if (noteObject.data.sustain <= 0)
+			noteObject.killNote();
+		else
+			noteObject.parentVisible = false;
 	}
 
 	public function missNote(noteObject:NoteObject):Void
