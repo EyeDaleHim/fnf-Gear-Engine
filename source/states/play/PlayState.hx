@@ -156,6 +156,8 @@ class PlayState extends MainState
 
 		startCountdown();
 
+		conductor.onBeat.add(playfield.beatHit);
+
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
 
@@ -181,6 +183,7 @@ class PlayState extends MainState
 	public function startSong():Void
 	{
 		songStarted = true;
+
 		conductor.play();
 	}
 
@@ -336,6 +339,10 @@ class PlayState extends MainState
 	{
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, keyRelease);
+
+		conductor.onBeat.removeAll();
+		conductor.onStep.removeAll();
+		conductor.onMeasure.removeAll();
 
 		super.startOutro(onOutroComplete);
 	}
