@@ -124,6 +124,12 @@ class SystemAssets
 				FlxG.bitmap.add(graphic, formattedPath);
 		}
 
+		if (graphic == null)
+		{
+			trace('Missing asset: ${formattedPath}');
+			graphic = FlxG.bitmap.add("flixel/images/logo/default.png");
+		}
+
 		return graphic;
 	}
 
