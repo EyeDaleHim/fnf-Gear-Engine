@@ -159,6 +159,11 @@ class PlayField extends FlxGroup
 		scoreText.text = 'Score: ${FlxStringUtil.formatMoney(score, false)} // Misses: ${FlxStringUtil.formatMoney(misses, false)} // Accuracy: ${formatAccuracy(accuracy)}%';
 	}
 
+	public function beatHit(beat:Int)
+	{
+		healthbar.beatHit(beat);
+	}
+
 	override public function update(elapsed:Float)
 	{
 		if (pendingNotes.length > 0)
@@ -478,24 +483,24 @@ class PlayField extends FlxGroup
 
 	function get_health():Float
 	{
-		return healthbar?.bar?.value ?? Math.NaN;
+		return healthbar.value ?? Math.NaN;
 	}
 
 	function set_health(value:Float):Float
 	{
 		if (healthbar?.bar != null)
-			return healthbar.bar.value = value;
+			return healthbar.value = value;
 		return Math.NaN;
 	}
 
 	function get_maxHealth():Float
 	{
-		return healthbar?.bar?.max ?? Math.NaN;
+		return healthbar.bar.max ?? Math.NaN;
 	}
 
 	function set_maxHealth(value:Float):Float
 	{
-		if (healthbar?.bar != null)
+		if (healthbar.bar != null)
 		{
 			healthbar.bar.setRange(0, value);
 			return healthbar.bar.max;
