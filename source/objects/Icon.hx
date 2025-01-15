@@ -13,7 +13,7 @@ class Icon extends FlxSprite
 	{
 		super();
 
-        changeIcon(path, name);
+		changeIcon(path, name);
 	}
 
 	override public function update(elapsed:Float)
@@ -22,19 +22,23 @@ class Icon extends FlxSprite
 
 		if (changeScale)
 		{
-			var scaleLerp:Float = FlxMath.bound(elapsed * 9 * changeScaleSpeed, 0, 1);
-			scale.set(FlxMath.lerp(scale.x, targetScale.x, scaleLerp), FlxMath.lerp(scale.y, targetScale.y, scaleLerp));
-            updateHitbox();
+			scale.x -= elapsed * changeScaleSpeed;
+			scale.y -= elapsed * changeScaleSpeed;
+			scale.set(Math.max(scale.x, targetScale.x), Math.max(scale.y, targetScale.y));
+			updateHitbox();
 		}
 	}
 
-    public function changeIcon(path:String, name:String):Void
-    {
-        var completePath:String = Path.join([path, name]);
+	public function changeIcon(path:String, name:String):Void
+	{
+		var completePath:String = Path.join([path, name]);
 
 		if (Assets.frames(completePath) == null)
-			loadGraphic(Assets.image(completePath));
+		{
+			var graphic:FlxGraphic = Assets.image(completePath);
+			loadGraphic(graphic, true, Math.min(graphic.width, graphic.height).floor(), Math.min(graphic.width, graphic.height).floor());
+		}
 		else
 			frames = Assets.frames(completePath);
-    }
+	}
 }
