@@ -39,7 +39,7 @@ class Strumline extends FlxTypedSpriteGroup<StrumNote>
 
             strum.alpha = 0.0;
             strum.offset.y += 10.0;
-            tweenManager.tween(strum, {"offset.y": formerOffsetY, alpha: 1.0}, 1.0, {ease: FlxEase.circOut, startDelay: 0.5 + (0.2 * strum.ID)});
+            tweenManager.tween(strum, {"offset.y": formerOffsetY, alpha: 1.0}, 0.5, {ease: FlxEase.circOut, startDelay: 0.25 + (0.1 * strum.ID)});
         }
     }
 }
