@@ -5,6 +5,8 @@ class Icon extends FlxSprite
 	public static var gameplayPath:String = "ui/icons";
 	public static var freeplayPath:String = "menus/freeplayicons";
 
+	public var name:String = "";
+
 	public var changeScale:Bool = false;
 	public var targetScale:FlxPoint = FlxPoint.get(1.0, 1.0);
 	public var changeScaleSpeed:Float = 1.0;
@@ -40,5 +42,7 @@ class Icon extends FlxSprite
 		}
 		else
 			frames = Assets.frames(completePath);
+
+		this.name = name;
 	}
 }

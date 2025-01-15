@@ -11,6 +11,8 @@ typedef ChartFormat = {
     var ?strums:Array<StrumFormat>;
     var ?playables:Array<Bool>; // if each strum should be played, easily overridable mid-game
 
+    var ?icons:IconNames;
+
     // [0] = strum time
     // [1] = strum index, defined by `strums`
     // [2] = lane of the note, will wrap around if exceeds limits
@@ -26,6 +28,11 @@ typedef ChartFormat = {
     var ?ratingFormat:GameplayRatingFormat;
 
     var ?version:String; // version used to identify gear engine charts
+};
+
+typedef IconNames = {
+    var ?left:String;
+    var ?right:String;
 };
 
 typedef StrumFormat = {
