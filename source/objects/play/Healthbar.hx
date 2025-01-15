@@ -1,5 +1,8 @@
 package objects.play;
 
+import assets.formats.ChartFormat;
+import assets.formats.ChartFormat.IconNames;
+
 import objects.Icon;
 
 import flixel.ui.FlxBar;
@@ -18,7 +21,7 @@ class Healthbar extends FlxContainer
 
     private var _barValue:Float = 0.0;
 
-    public function new(width:Int = 600, height:Int = 20)
+    public function new(?chart:ChartFormat, width:Int = 600, height:Int = 20)
     {
         super();
 
@@ -70,6 +73,14 @@ class Healthbar extends FlxContainer
 
         leftIcon.y = bar.y + bar.height - (leftIcon.height / 1.6);
         rightIcon.y = bar.y + bar.height - (rightIcon.height / 1.6);
+    }
+
+    public function changeIcons(newIcons:IconNames)
+    {
+        if (newIcons != null)
+        {
+            
+        }
     }
 
     public function beatHit(beat:Int)
