@@ -80,8 +80,13 @@ abstract Note(Array<Dynamic>) from Array<Dynamic> to Array<Dynamic>
 
     inline public function canBeHit(position:Float, safeZone:Float, ?earlyMult:Float = 1.0, ?lateMult:Float = 1.0):Bool
     {
-        return (time > (position - safeZone) * earlyMult && time < (position + safeZone) * lateMult);
+        return (time > position - (safeZone * earlyMult) && time < (position + safeZone * lateMult));
     }
+
+    inline public function sustainCanRelease(position:Float, safeZone:Float, ?earlyMult:Float = 1.0, ?lateMult:Float = 1.0):Bool
+        {
+            return (time + sustain > position - (safeZone * earlyMult) && time + sustain < (position + safeZone * lateMult));
+        }
 
     // for backwards compat
     public var length(get, never):Int;

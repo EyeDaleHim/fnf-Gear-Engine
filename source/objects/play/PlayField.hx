@@ -222,9 +222,7 @@ class PlayField extends FlxGroup
 				if (note == null)
 					return false;
 
-				return (note.canBeHit(position, (safeInputFrames / 60.0) * 1000.0)
-					&& note.lane == dir
-					&& level?.chart?.playables[note.strumIndex]);
+				return (note.canBeHit(position, ratingsData.maxTiming) && note.lane == dir && level?.chart?.playables[note.strumIndex]);
 			});
 
 			sortedNotes.sort((a, b) -> Std.int(a.data?.time - b.data?.time));
@@ -259,11 +257,31 @@ class PlayField extends FlxGroup
 
 		if (!botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
 		{
+			final sortedNotes:Array<NoteObject> = notes.members.filter((noteObject:NoteObject) ->
+			{
+				var note = noteObject.data;
+				if (note == null)
+					return false;
+
+				return (note.sustain > 0 && note.wasHit && note.lane == dir && level?.chart?.playables[note.strumIndex]);
+			});
+
+			sortedNotes.sort((a, b) -> Std.int(a.data?.time - b.data?.time));
+
 			forEachStrumPlayable((strum) ->
 			{
 				strum.members[dir].playAnimation(strum.members[dir].staticAnim, true);
 				strum.members[dir].decrementLength = true;
 			}, level?.chart?.playables);
+
+			for (note in sortedNotes)
+			{
+				if (note.data.sustainCanRelease(position, ratingsData.maxTiming, 0.5, 1.5))
+					hitNote(note, true, 0);
+				else
+					missNote(note);
+				note.killNote();
+			}
 		}
 	}
 
@@ -346,26 +364,39 @@ class PlayField extends FlxGroup
 				if (note.data.time - position < 0)
 				{
 					if (note.data.wasHit && (note.data.time + note.data.sustain) - position < 0)
+					{
+						hitNote(note, level.chart.playables[note.data.strumIndex], 0.0);
 						note.killNote();
+					}
+					else if (note.data.wasHit)
+						hitSustain(note);
 					else if (!note.data.wasHit)
 						hitNote(note, level.chart.playables[note.data.strumIndex], 0.0);
 				}
 			}
 			else
 			{
-				if (playable && !note.data.canBeHit(position, ratingsData.maxTiming) && note.data.time - position < ratingsData.maxTiming)
-					missNote(note);
+				if (playable)
+				{
+					if (((note.data.wasHit && position > note.data.time + note.data.sustain + (ratingsData.maxTiming * 1.5))
+						|| (!note.data.wasHit
+							&& !note.data.canBeHit(position, ratingsData.maxTiming)
+							&& note.data.time - position < ratingsData.maxTiming)))
+						missNote(note);
+				}
 				else if (playable != null && !playable && note.data.time - position < 0)
 				{
 					if (note.data.wasHit && (note.data.time + note.data.sustain) - position < 0)
 						note.killNote();
+					else if (note.data.wasHit)
+						hitSustain(note);
 					else if (!note.data.wasHit)
 						hitNote(note);
 				}
 			}
 		}
 
-		if (note.exists && note.data.missed && !note.isOnScreen(camera))
+		if (note.exists && note.data.missed && note.y < -((note.height / 2) + note.sustain.sustainHeight()))
 			note.killNote();
 	}
 
@@ -480,6 +511,15 @@ class PlayField extends FlxGroup
 		noteObject.alpha = noteObject.alpha * 0.5;
 
 		changeScoreText();
+	}
+
+	public function hitSustain(noteObject:NoteObject)
+	{
+		var strumline:Strumline = strumlines[noteObject.data.strumIndex];
+		var strumNote:StrumNote = strumline.members[noteObject.data.lane % strumline.length];
+
+		if (strumNote.animation.curAnim?.curFrame > 2)
+			strumNote.playAnimation(strumNote.confirmAnim, true);
 	}
 
 	public function showCombo(rating:Rating, ?missed:Bool = false):Void
