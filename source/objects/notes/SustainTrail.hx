@@ -30,26 +30,26 @@ class SustainTrail extends FlxSprite
 		animation.addByPrefix("sustainUPend", "green hold end", 24);
 		animation.addByPrefix("sustainRIGHTend", "red hold end", 24);
 
-        scale.x = 0.7;
-        alpha = 0.6;
+		scale.x = 0.7;
+		alpha = 0.6;
 	}
 
 	override public function update(elapsed:Float)
 	{
 		if (bodyAnimation != null)
 		{
-            bodyAnimation.play();
+			bodyAnimation.play();
 			bodyAnimation.update(elapsed);
 		}
 		if (endAnimation != null)
 		{
-            endAnimation.play();
+			endAnimation.play();
 			endAnimation.update(elapsed);
 		}
 
-        var bodyFrame:FlxFrame = frames.getByIndex(bodyAnimation.curIndex);
+		var bodyFrame:FlxFrame = frames.getByIndex(bodyAnimation.curIndex);
 
-        x = parent.x + ((parent.width / 2) - ((bodyFrame.sourceSize.x / scale.x) / 2));
+		x = parent.x + ((parent.width / 2) - ((bodyFrame.sourceSize.x / scale.x) / 2));
 		y = parent.y;
 
 		super.update(elapsed);
@@ -69,7 +69,7 @@ class SustainTrail extends FlxSprite
 
 		for (camera in cameras)
 		{
-			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+			if (!camera.visible || !camera.exists /*|| !isOnScreen(camera)*/)
 				continue;
 
 			var totalSustainHeight:Float = sustainHeight() - center;
@@ -111,6 +111,50 @@ class SustainTrail extends FlxSprite
 				sustainY += bodyFrame.sourceSize.y;
 				totalSustainHeight -= bodyFrame.sourceSize.y;
 			}
+
+			bodyFrame.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+
+			_matrix.translate(-origin.x, -origin.y);
+			_matrix.scale(scale.x, 1.0);
+
+			if (bakedRotationAngle <= 0)
+			{
+				updateTrig();
+
+				if (angle != 0)
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+
+			getScreenPosition(_point, camera).subtractPoint(offset);
+			_point.add(0, sustainY);
+			_point.add(origin.x, origin.y);
+			_matrix.translate(_point.x, _point.y);
+
+			if (isPixelPerfectRender(camera))
+			{
+				_matrix.tx = Math.floor(_matrix.tx);
+				_matrix.ty = Math.floor(_matrix.ty);
+			}
+
+			drawItem.addQuad(endFrame, _matrix, colorTransform);
 		}
+
+		#if FLX_DEBUG
+		if (FlxG.debugger.drawDebug)
+			drawDebug();
+		#end
+	}
+
+	override function get_width():Float
+	{
+		var bodyFrame:FlxFrame = frames.getByIndex(bodyAnimation.curIndex);
+		var endFrame:FlxFrame = frames.getByIndex(endAnimation.curIndex);
+
+		return Math.max(bodyFrame.sourceSize.x, endFrame.sourceSize.x);
+	}
+
+	override function get_height():Float
+	{
+		return sustainHeight();
 	}
 }

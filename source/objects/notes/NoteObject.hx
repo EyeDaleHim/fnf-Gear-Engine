@@ -124,4 +124,7 @@ class NoteObject extends FlxSprite
 		sustainVisible = false;
 		data = null;
 	}
+
+	override function isOnScreen(?camera:FlxCamera):Bool
+		return true;
 }
