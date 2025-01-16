@@ -262,11 +262,12 @@ class PlayField extends FlxGroup
 
 		if (!note.data.missed && level?.chart != null)
 		{
-			if (botplay)
+			var playable:Null<Bool> = level.chart.playables[note.data.strumIndex];
+			if (botplay && playable)
 			{
 				if (note.data.time - position < 0)
 				{
-					if (note.data.wasHit && note.data.time + note.data.sustain - position < 0)
+					if (note.data.wasHit && (note.data.time + note.data.sustain) - position < 0)
 						note.killNote();
 					else if (!note.data.wasHit)
 						hitNote(note, level.chart.playables[note.data.strumIndex], 0.0);
@@ -274,12 +275,11 @@ class PlayField extends FlxGroup
 			}
 			else
 			{
-				var playable:Null<Bool> = level.chart.playables[note.data.strumIndex];
-				if (!note.data.canBeHit(position, ratingsData.maxTiming) && note.data.time - position < ratingsData.maxTiming)
+				if (playable && !note.data.canBeHit(position, ratingsData.maxTiming) && note.data.time - position < ratingsData.maxTiming)
 					missNote(note);
 				else if (playable != null && !playable && note.data.time - position < 0)
 				{
-					if (note.data.wasHit && note.data.time + note.data.sustain - position < 0)
+					if (note.data.wasHit && (note.data.time + note.data.sustain) - position < 0)
 						note.killNote();
 					else if (!note.data.wasHit)
 						hitNote(note);
@@ -287,7 +287,7 @@ class PlayField extends FlxGroup
 			}
 		}
 
-		if (note.exists && note.data.missed && !note.isOnScreen())
+		if (note.exists && note.data.missed && !note.isOnScreen(camera))
 			note.killNote();
 	}
 
