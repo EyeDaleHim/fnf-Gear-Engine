@@ -1,7 +1,6 @@
 package objects.play;
 
 import assets.formats.GameplayRatingFormat;
-import flixel.ui.FlxBar;
 import flixel.util.FlxSort;
 import flixel.util.FlxStringUtil;
 import objects.notes.Strumline;
@@ -10,6 +9,7 @@ import objects.notes.NoteObject;
 import objects.notes.Note;
 import objects.play.Healthbar;
 import states.play.PlayState.Level;
+import openfl.events.KeyboardEvent;
 
 class PlayField extends FlxGroup
 {
@@ -99,6 +99,8 @@ class PlayField extends FlxGroup
 	public var healthbar:Healthbar;
 	public var scoreText:FlxText;
 
+	public var controls:Array<Control> = [Control.NOTE_LEFT, Control.NOTE_DOWN, Control.NOTE_UP, Control.NOTE_RIGHT];
+
 	private var _defaultPlayables:Array<Bool> = [false, true];
 	private var _removeNotes:Array<Note> = [];
 
@@ -149,6 +151,9 @@ class PlayField extends FlxGroup
 			if (graphic != null)
 				_firstRatingSize.set(graphic.width, graphic.height);
 		}
+
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
 	}
 
 	public function changeScoreText():Void
@@ -203,6 +208,79 @@ class PlayField extends FlxGroup
 		notes.forEachAlive(updateNotes);
 
 		super.update(elapsed);
+	}
+
+	public function keyPress(event:KeyboardEvent)
+	{
+		var dir:Int = checkKeyCode(event.keyCode);
+
+		if (!botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
+		{
+			final sortedNotes:Array<NoteObject> = notes.members.filter((noteObject:NoteObject) ->
+			{
+				var note = noteObject.data;
+				if (note == null)
+					return false;
+
+				return (note.canBeHit(position, (safeInputFrames / 60.0) * 1000.0)
+					&& note.lane == dir
+					&& level?.chart?.playables[note.strumIndex]);
+			});
+
+			sortedNotes.sort((a, b) -> Std.int(a.data?.time - b.data?.time));
+
+			var confirm:Bool = sortedNotes.length > 0;
+
+			forEachStrumPlayable((strum) ->
+			{
+				if (!confirm)
+				{
+					strum.members[dir].playAnimation(strum.members[dir].pressAnim, true);
+					strum.members[dir].decrementLength = false;
+				}
+				else
+				{
+					strum.members[dir].playAnimation(strum.members[dir].confirmAnim, true);
+					strum.members[dir].decrementLength = false;
+				}
+			}, level?.chart?.playables);
+
+			if (!confirm)
+				return;
+
+			var firstNote:NoteObject = sortedNotes[0];
+			hitNote(firstNote, true);
+		}
+	}
+
+	public function keyRelease(event:KeyboardEvent)
+	{
+		var dir:Int = checkKeyCode(event.keyCode);
+
+		if (!botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
+		{
+			forEachStrumPlayable((strum) ->
+			{
+				strum.members[dir].playAnimation(strum.members[dir].staticAnim, true);
+				strum.members[dir].decrementLength = true;
+			}, level?.chart?.playables);
+		}
+	}
+
+	public function checkKeyCode(keyCode:Int = -1)
+	{
+		if (keyCode != -1)
+		{
+			for (control in controls)
+			{
+				for (key in control.keys)
+				{
+					if (key == keyCode)
+						return controls.indexOf(control);
+				}
+			}
+		}
+		return -1;
 	}
 
 	public function start(interval:Float = 0.5, ?finishCallback:Void->Void):Void
@@ -308,7 +386,7 @@ class PlayField extends FlxGroup
 			{
 				var strumline:Strumline = strumlines[noteObject.data.strumIndex];
 				var strumNote:StrumNote = strumline.members[noteObject.data.lane % strumline.length];
-	
+
 				strumNote.playAnimation(strumNote.confirmAnim, true);
 			}
 
@@ -454,6 +532,12 @@ class PlayField extends FlxGroup
 		}
 	}
 
+	public function removeInputListeners():Void
+	{
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPress);
+		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, keyRelease);
+	}
+
 	public function reset()
 	{
 		maxHealth = 100.0;
@@ -463,8 +547,6 @@ class PlayField extends FlxGroup
 
 		score = 0;
 		misses = 0;
-
-
 	}
 
 	private function noteFactory(note:Note):NoteObject

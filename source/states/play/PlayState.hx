@@ -4,9 +4,7 @@ import assets.formats.ChartFormat;
 import assets.formats.SongFormat;
 import objects.notes.Note;
 import objects.notes.NoteObject;
-import objects.play.Countdown;
 import objects.play.PlayField;
-import openfl.events.KeyboardEvent;
 import lime.app.Future;
 
 typedef Level =
@@ -51,8 +49,6 @@ class PlayState extends MainState
 				finishCallback(instance);
 		});
 	}
-
-	public var controls:Array<Control> = [Control.NOTE_LEFT, Control.NOTE_DOWN, Control.NOTE_UP, Control.NOTE_RIGHT];
 
 	public var tweenManager:FlxTweenManager;
 	public var timerManager:TimerManager;
@@ -156,9 +152,6 @@ class PlayState extends MainState
 
 		conductor.onBeat.add(playfield.beatHit);
 
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, keyPress);
-		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, keyRelease);
-
 		super.create();
 	}
 
@@ -219,79 +212,6 @@ class PlayState extends MainState
 		super.update(elapsed);
 	}
 
-	public function keyPress(event:KeyboardEvent)
-	{
-		var dir:Int = checkKeyCode(event.keyCode);
-
-		if (!playfield.botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_PRESSED))
-		{
-			final sortedNotes:Array<NoteObject> = playfield.notes.members.filter((noteObject:NoteObject) ->
-			{
-				var note = noteObject.data;
-				if (note == null)
-					return false;
-
-				return (note.canBeHit(playfield.position, (playfield.safeInputFrames / 60.0) * 1000.0)
-					&& note.lane == dir
-					&& chart?.playables[note.strumIndex]);
-			});
-
-			sortedNotes.sort((a, b) -> Std.int(a.data?.time - b.data?.time));
-
-			var confirm:Bool = sortedNotes.length > 0;
-
-			playfield.forEachStrumPlayable((strum) ->
-			{
-				if (!confirm)
-				{
-					strum.members[dir].playAnimation(strum.members[dir].pressAnim, true);
-					strum.members[dir].decrementLength = false;
-				}
-				else
-				{
-					strum.members[dir].playAnimation(strum.members[dir].confirmAnim, true);
-					strum.members[dir].decrementLength = false;
-				}
-			}, chart?.playables);
-
-			if (!confirm)
-				return;
-
-			var firstNote:NoteObject = sortedNotes[0];
-			playfield.hitNote(firstNote, true);
-		}
-	}
-
-	public function keyRelease(event:KeyboardEvent)
-	{
-		var dir:Int = checkKeyCode(event.keyCode);
-
-		if (!playfield.botplay && dir != -1 && FlxG.keys.checkStatus(event.keyCode, JUST_RELEASED))
-		{
-			playfield.forEachStrumPlayable((strum) ->
-			{
-				strum.members[dir].playAnimation(strum.members[dir].staticAnim, true);
-				strum.members[dir].decrementLength = true;
-			}, chart?.playables);
-		}
-	}
-
-	public function checkKeyCode(keyCode:Int = -1)
-	{
-		if (keyCode != -1)
-		{
-			for (control in controls)
-			{
-				for (key in control.keys)
-				{
-					if (key == keyCode)
-						return controls.indexOf(control);
-				}
-			}
-		}
-		return -1;
-	}
-
 	public function restartSong(time:Float = 0.5):Void
 	{
 		songEnded = false;
@@ -335,8 +255,7 @@ class PlayState extends MainState
 
 	override function startOutro(onOutroComplete:Void->Void)
 	{
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyPress);
-		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, keyRelease);
+		playfield.removeInputListeners();
 
 		conductor.onBeat.removeAll();
 		conductor.onStep.removeAll();
