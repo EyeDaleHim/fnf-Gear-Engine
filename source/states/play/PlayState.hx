@@ -2,9 +2,11 @@ package states.play;
 
 import assets.formats.ChartFormat;
 import assets.formats.SongFormat;
+import assets.formats.StageFormat;
 import objects.notes.Note;
 import objects.notes.NoteObject;
 import objects.play.PlayField;
+import objects.play.Stage;
 import lime.app.Future;
 
 typedef Level =
@@ -17,7 +19,7 @@ class PlayState extends MainState
 {
 	public static var instance:PlayState;
 
-	public static function loadGame(playlist:Array<Level>, story:Bool, finishCallback:PlayState->Void):Void
+	public static function loadGame(playlist:Array<Level>, story:Bool, finishCallback:PlayState->Void, ?errorCallback:Void->Void):Void
 	{
 		var wasError:Bool = false;
 		var future:Future<PlayState> = new Future<PlayState>(() ->
@@ -37,9 +39,12 @@ class PlayState extends MainState
 				trace(e.stack);
 				trace(e.message);
 
+				if (errorCallback != null)
+					errorCallback();
+
 				return null;
 			}
-			
+
 			return null;
 		}, true);
 
@@ -61,6 +66,7 @@ class PlayState extends MainState
 	public var hudCamera:FlxCamera;
 	public var pauseCamera:FlxCamera;
 
+	public var stage:Stage;
 	public var playfield:PlayField;
 
 	public var storyMode:Bool = false;
@@ -86,6 +92,20 @@ class PlayState extends MainState
 
 		add(tweenManager);
 		add(timerManager);
+
+		var stageData:StageFormat = null;
+
+		try
+		{
+			stageData = Json.parse(Assets.contents('assets/stages/${chart?.stage}.json'));
+		}
+		catch (e)
+		{
+			FlxG.log.error('Could not find stage ${chart?.stage}');
+		}
+
+		stage = new Stage(chart?.stage, stageData);
+		add(stage);
 
 		playfield = new PlayField(tweenManager, timerManager, 2);
 		playfield.level = playlist[0];

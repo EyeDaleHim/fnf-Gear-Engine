@@ -1,10 +1,12 @@
 package assets.formats;
 
+import flixel.util.typeLimit.OneOfThree;
 import assets.formats.AnimationFormat;
+import assets.helpers.PointData;
 
 typedef StageFormat =
 {
-	var ?objects:Array<ObjectData<StaticSprite, AnimatedSprite>>;
+	var ?objects:Array<ObjectData>;
 	var ?character:Array<Character>;
 
 	var ?cameraPoints:Array<CameraPoint>;
@@ -15,14 +17,17 @@ typedef StageFormat =
 typedef Object =
 {
 	var name:String;
+	var type:ObjectType;
 	var x:Float;
 	var y:Float;
 }
 
 typedef Sprite = 
 {
-	var ?scale:{x:Float, y:Float};
-	var ?scrollFactor:{x:Float, y:Float};
+	var ?scale:FloatPointData;
+	var ?graphicSize:FloatPointData; // if you need to resize by specific width and height, this is the way to do it
+	var ?scrollFactor:FloatPointData;
+	var ?flip:BoolPointData;
 };
 
 typedef StaticSprite =
@@ -54,4 +59,11 @@ typedef CameraPoint =
 	var zoom:Float;
 };
 
-abstract ObjectData<T1, T2>(Object) from T1 from T2 to T1 to T2 {}
+typedef ObjectData = OneOfThree<Object, StaticSprite, AnimatedSprite>;
+
+enum abstract ObjectType(String)
+{
+	var BASIC;
+	var STATICSPRITE;
+	var ANIMATEDSPRITE;
+}
