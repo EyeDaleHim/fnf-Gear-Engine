@@ -26,7 +26,7 @@ class Healthbar extends FlxContainer
         super();
 
         bar = new FlxBar(0, 0, RIGHT_TO_LEFT, width, height, null, "", 0, 100, true);
-        bar.createFilledBar(FlxColor.RED, FlxColor.LIME, true, FlxColor.WHITE, 4);
+        bar.createFilledBar(FlxColor.RED, FlxColor.LIME, true, FlxColor.BLACK, 4);
         bar.screenCenter();
         bar.y = FlxG.height * 0.9;
         bar.numDivisions = width;
