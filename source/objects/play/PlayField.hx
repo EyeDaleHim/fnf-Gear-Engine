@@ -127,8 +127,10 @@ class PlayField extends FlxGroup
 		healthbar = new Healthbar();
 		add(healthbar);
 
-		scoreText = new FlxText(0, 0, FlxG.width * 0.85, "Score: 0 // Misses: 0 // Accuracy: 0.00%");
-		scoreText.setFormat(Assets.fontByName('vcr'), 18, FlxColor.WHITE, CENTER);
+		scoreText = new FlxText(0, 0, (FlxG.width * 0.85) * 2, "Score: 0 // Misses: 0 // Accuracy: 0.00%");
+		scoreText.setFormat(Assets.fontByName('vcr'), 18 * 2, FlxColor.WHITE, CENTER);
+		scoreText.scale.set(0.5, 0.5);
+		scoreText.updateHitbox();
 		scoreText.screenCenter();
 		scoreText.y = FlxG.height * 0.95;
 		add(scoreText);
@@ -517,6 +519,8 @@ class PlayField extends FlxGroup
 	{
 		var strumline:Strumline = strumlines[noteObject.data.strumIndex];
 		var strumNote:StrumNote = strumline.members[noteObject.data.lane % strumline.length];
+
+		noteObject.sustain.updateSustainClip(strumNote.height / 2);
 
 		if (strumNote.animation.curAnim?.curFrame > 2)
 			strumNote.playAnimation(strumNote.confirmAnim, true);
