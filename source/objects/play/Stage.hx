@@ -109,10 +109,9 @@ class Stage extends FlxGroup
 	{
 		if (freeflyCamera.visible)
 		{
-			var rect:FlxRect = camera.getViewMarginRect();
-			actualCameraPositionSprite.x = rect.x;
-			actualCameraPositionSprite.y = rect.y;
-			actualCameraPositionSprite.setGraphicSize(rect.width, rect.height);
+			actualCameraPositionSprite.x = camera.viewX;
+			actualCameraPositionSprite.y = camera.viewY;
+			actualCameraPositionSprite.setGraphicSize(camera.viewWidth, camera.viewHeight);
 			actualCameraPositionSprite.updateHitbox();
 
 			actualCameraPositionSprite.alpha = FlxMath.lerp(actualCameraPositionSprite.alpha, freeflyCamera.visible ? 0.5 : 0,
