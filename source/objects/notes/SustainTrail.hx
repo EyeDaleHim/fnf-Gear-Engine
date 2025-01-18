@@ -12,6 +12,8 @@ class SustainTrail extends FlxSprite
 	public var bodyAnimation:FlxAnimation;
 	public var endAnimation:FlxAnimation;
 
+	public var sustainRect:FlxRect = FlxRect.get(0, 0, 1, 1);
+
 	override public function new(parent:NoteObject, ?preallocatedFrames:FlxFramesCollection)
 	{
 		super();
@@ -53,6 +55,13 @@ class SustainTrail extends FlxSprite
 		y = parent.y;
 
 		super.update(elapsed);
+	}
+
+	public function updateSustainClip(?clipPart:Float = 0.0):Void
+	{
+		sustainRect.y = clipPart;
+		sustainRect.width = width;
+		sustainRect.height = height;
 	}
 
 	public inline function sustainHeight():Float
@@ -106,7 +115,13 @@ class SustainTrail extends FlxSprite
 					_matrix.ty = Math.floor(_matrix.ty);
 				}
 
-				drawItem.addQuad(bodyFrame, _matrix, colorTransform);
+				// TODO: add clipping later
+				if ((checkFlipY() && _matrix.ty < sustainRect.bottom) || (!checkFlipY() && _matrix.ty > sustainRect.y))
+				{
+					// if (!checkFlipY())
+						
+					drawItem.addQuad(bodyFrame, _matrix, colorTransform);
+				}
 
 				sustainY += bodyFrame.sourceSize.y;
 				totalSustainHeight -= bodyFrame.sourceSize.y;
@@ -136,7 +151,8 @@ class SustainTrail extends FlxSprite
 				_matrix.ty = Math.floor(_matrix.ty);
 			}
 
-			drawItem.addQuad(endFrame, _matrix, colorTransform);
+			if ((checkFlipY() && _matrix.ty < sustainRect.bottom) || (!checkFlipY() && _matrix.ty > sustainRect.y))
+				drawItem.addQuad(endFrame, _matrix, colorTransform);
 		}
 
 		#if FLX_DEBUG
