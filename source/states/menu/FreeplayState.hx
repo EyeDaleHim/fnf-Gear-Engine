@@ -29,6 +29,8 @@ class FreeplayState extends Page
 	private var waitPreviewTimer:FlxTimer;
 	private var previewTimer:FlxTimer;
 
+	private var controlsDisabled:Bool = false;
+
 	public function new()
 	{
 		super();
@@ -116,45 +118,48 @@ class FreeplayState extends Page
 
 	override public function update(elapsed:Float)
 	{
-		if (FlxG.keys.justPressed.ESCAPE)
+		if (!controlsDisabled)
 		{
-			interruptSongPreview();
-
-			if (musics.length > 0 && musics[0].playing)
+			if (FlxG.keys.justPressed.ESCAPE)
 			{
-				FlxTween.num(1.0, 0.0, 0.5, {
-					onComplete: (_) ->
-					{
-						parent.conductor.clearChannels();
+				interruptSongPreview();
 
-						if (parent.music != null)
+				if (musics.length > 0 && musics[0].playing)
+				{
+					FlxTween.num(1.0, 0.0, 0.5, {
+						onComplete: (_) ->
 						{
-							parent.conductor.mainChannel = parent.music;
-							parent.conductor.resume();
-							parent.music.fadeIn();
+							parent.conductor.clearChannels();
+
+							if (parent.music != null)
+							{
+								parent.conductor.mainChannel = parent.music;
+								parent.conductor.resume();
+								parent.music.fadeIn();
+							}
 						}
-					}
-				}, (v) ->
-					{
-						for (music in musics)
+					}, (v) ->
 						{
-							music.volume = v;
-						}
-					});
+							for (music in musics)
+							{
+								music.volume = v;
+							}
+						});
+				}
+
+				switchPage('menu');
 			}
-
-			switchPage('menu');
+			if (FlxG.keys.justPressed.ENTER)
+				selectItem();
+			if (Control.UI_UP.justPressed)
+				changeItem(-1);
+			if (Control.UI_DOWN.justPressed)
+				changeItem(1);
+			if (Control.UI_LEFT.justPressed)
+				changeDifficulty(-1);
+			if (Control.UI_RIGHT.justPressed)
+				changeDifficulty(1);
 		}
-		if (FlxG.keys.justPressed.ENTER)
-			selectItem();
-		if (Control.UI_UP.justPressed)
-			changeItem(-1);
-		if (Control.UI_DOWN.justPressed)
-			changeItem(1);
-		if (Control.UI_LEFT.justPressed)
-			changeDifficulty(-1);
-		if (Control.UI_RIGHT.justPressed)
-			changeDifficulty(1);
 
 		scoreBox.setSize(scoreText.width + 32, scoreBox.height);
 		scoreBox.x = FlxG.width - scoreBox.width - 4.0;
@@ -172,12 +177,15 @@ class FreeplayState extends Page
 	{
 		super.revive();
 
+		controlsDisabled = false;
+
 		checkMenuSong();
 		startPreviewTimer(true);
 	}
 
 	public function selectItem():Void
 	{
+		controlsDisabled = true;
 		interruptSongPreview();
 
 		if (parent.music.playing)
@@ -206,9 +214,15 @@ class FreeplayState extends Page
 			{song: SongList.list[index], chart: ChartList.getChart(SongList.list[index].name, diffIndex)}
 		], false, (newState) ->
 			{
-				parent.conductor.clear();
+				FlxTimer.wait(1.0, () ->
+				{
+					parent.conductor.clear();
 
-				FlxG.switchState(() -> newState);
+					FlxG.switchState(() -> newState);
+				});
+			}, () ->
+			{
+				controlsDisabled = false;
 			});
 	}
 
@@ -352,6 +366,15 @@ class FreeplayState extends Page
 			waitPreviewTimer.cancel();
 		if (previewTimer != null)
 			previewTimer.cancel();
+
+		if (parent.music.fadeTween != null)
+			parent.music.fadeTween.cancel();
+		for (music in musics)
+		{
+			if (music.fadeTween != null)
+				music.fadeTween.cancel();
+		};
+
 		musicFuture = null;
 	}
 }
