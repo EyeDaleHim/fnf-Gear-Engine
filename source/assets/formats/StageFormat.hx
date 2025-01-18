@@ -20,6 +20,7 @@ typedef Object =
 	var type:ObjectType;
 	var x:Float;
 	var y:Float;
+	var ?camera:String;
 }
 
 typedef Sprite = 

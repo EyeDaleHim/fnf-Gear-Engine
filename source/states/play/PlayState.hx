@@ -63,6 +63,7 @@ class PlayState extends MainState
 
 	public var pauseMenu:PauseSubstate;
 
+	public var gameCamera:FlxCamera;
 	public var hudCamera:FlxCamera;
 	public var pauseCamera:FlxCamera;
 
@@ -83,6 +84,8 @@ class PlayState extends MainState
 		super();
 
 		playlist ??= [];
+
+		gameCamera = new FlxCamera();
 
 		hudCamera = new FlxCamera();
 		hudCamera.bgColor.alpha = 0;
@@ -105,6 +108,7 @@ class PlayState extends MainState
 		}
 
 		stage = new Stage(chart?.stage, stageData);
+		stage.camera = gameCamera;
 		add(stage);
 
 		playfield = new PlayField(tweenManager, timerManager, 2);
@@ -166,7 +170,13 @@ class PlayState extends MainState
 		conductor.clear();
 		conductor.channels = _trackList;
 
-		FlxG.cameras.add(hudCamera);
+		FlxG.cameras.reset(gameCamera);
+		FlxG.cameras.add(stage.freeflyCamera, false);
+		FlxG.cameras.add(hudCamera, false);
+
+		stage.initStageCameras(gameCamera, hudCamera);
+
+		FlxG.camera.follow(stage.camFollow, 1.0);
 
 		startCountdown();
 
@@ -228,6 +238,13 @@ class PlayState extends MainState
 	{
 		if (playfield.positionControlled)
 			playfield.position = conductor.position;
+
+		if (MainState.debugMode)
+		{
+			if (FlxG.keys.justPressed.F1 && FlxG.keys.pressed.SHIFT)
+				stage.toggleFreeflyCamera();
+
+		}
 
 		super.update(elapsed);
 	}
