@@ -80,6 +80,8 @@ class FreeplayState extends Page
 					icon.animation.play('confirm-hold');
 			});
 
+			icon.alpha = 0.6;
+
 			icon.animation.play('idle');
 
 			iconGroup.add(icon);
