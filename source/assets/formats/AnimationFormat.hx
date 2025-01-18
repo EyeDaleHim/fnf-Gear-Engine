@@ -3,6 +3,8 @@ package assets.formats;
 import assets.helpers.PointData;
 
 typedef Animation = {
+	var type:String;
+
     var ?name:String;
 	var ?prefix:String;
 	var ?indices:Array<Int>;
