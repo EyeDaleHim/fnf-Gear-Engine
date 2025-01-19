@@ -32,6 +32,13 @@ class Stage extends FlxGroup
 				y: -300.0,
 				scroll: {x: 1.30, y: 1.30},
 				scale: {x: 0.90, y: 0.90}
+			},
+			{
+				name: 'no_stage_detected',
+				graphic: 'no_stage_detected',
+				type: STATICSPRITE,
+				x: 0.0,
+				y: 0.0
 			}
 		]
 	};
@@ -40,13 +47,15 @@ class Stage extends FlxGroup
 	public var data:StageFormat;
 
 	public var freeflyCamera:FlxCamera;
-
-	public var camFollow:FlxObject;
 	public var freeflyFollow:FlxObject;
 	public var freeflyPosition:FlxPoint;
 	public var freeflyZoom:Float = 1.0;
 
-	public var cameraPoints:Array<CameraPoint> = [];
+	public var camFollow:FlxObject;
+
+	public var camFocus:String = "";
+
+	public var cameraPoints:Map<String, CameraPoint> = [];
 	public var actualCameraPositionSprite:FlxSprite;
 
 	public var objectList:Array<FlxBasic> = [];
@@ -99,6 +108,27 @@ class Stage extends FlxGroup
 			}
 		}
 
+		if (data.cameraPoints == null || data.cameraPoints.length == 0)
+		{
+			cameraPoints = [
+				"default" => {
+					x: FlxG.width / 2,
+					y: FlxG.height / 2,
+					type: BASIC,
+					name: "default",
+					zoom: 1.1
+				}
+			];
+			camFocus = "default";
+		}
+		else
+		{
+			for (point in data.cameraPoints)
+			{
+				cameraPoints.set(point.name, point);
+			}
+		}
+
 		actualCameraPositionSprite = new FlxSprite().makeGraphic(1, 1, FlxColor.RED);
 		actualCameraPositionSprite.alpha = 0.0;
 		actualCameraPositionSprite.camera = freeflyCamera;
@@ -135,6 +165,13 @@ class Stage extends FlxGroup
 			freeflyCamera.zoom = FlxMath.lerp(freeflyCamera.zoom, freeflyZoom, FlxMath.bound(elapsed * 1.5, 0, 1));
 		}
 
+		if (cameraPoints.exists(camFocus))
+		{
+			camera.zoom = FlxMath.lerp(camera.zoom, cameraPoints.get(camFocus).zoom, FlxMath.bound(elapsed * 9.0, 0, 1));
+			camFollow.setPosition(FlxMath.lerp(camFollow.x, cameraPoints.get(camFocus).x, FlxMath.bound(elapsed * 15.0, 0, 1)),
+				FlxMath.lerp(camFollow.y, cameraPoints.get(camFocus).y, FlxMath.bound(elapsed * 15.0, 0, 1)));
+		}
+
 		super.update(elapsed);
 	}
 
@@ -150,6 +187,11 @@ class Stage extends FlxGroup
 
 			freeflyFollow.setPosition(camFollow.x, camFollow.y);
 			freeflyCamera.zoom = camera.zoom;
+		}
+		else
+		{
+			camFollow.setPosition(freeflyFollow.x, freeflyFollow.y);
+			camera.zoom = freeflyCamera.zoom;
 		}
 
 		freeflyCamera.visible = !freeflyCamera.visible;
@@ -171,7 +213,6 @@ class Stage extends FlxGroup
 					default:
 						correspondingObject.cameras = [gameCamera, freeflyCamera];
 				}
-				trace(data.objects.indexOf(obj));
 			}
 		}
 	}
