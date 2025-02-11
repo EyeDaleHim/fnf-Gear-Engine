@@ -25,11 +25,13 @@ class Healthbar extends FlxContainer
     {
         super();
 
-        bar = new FlxBar(0, 0, RIGHT_TO_LEFT, width, height, null, "", 0, 100, true);
-        bar.createFilledBar(FlxColor.RED, FlxColor.LIME, true, FlxColor.BLACK, 4);
+        bar = new FlxBar(0, 0, RIGHT_TO_LEFT, width * 2, height * 2, null, "", 0, 100, true);
+        bar.createFilledBar(FlxColor.RED, FlxColor.LIME, true, FlxColor.BLACK, 8);
+        bar.scale.set(0.5, 0.5);
+        bar.updateHitbox();
         bar.screenCenter();
         bar.y = FlxG.height * 0.9;
-        bar.numDivisions = width;
+        bar.numDivisions = width * 2;
         bar.value = 50.0;
         add(bar);
 

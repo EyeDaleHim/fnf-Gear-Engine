@@ -285,6 +285,8 @@ class FreeplayState extends Page
 	{
 		// NOTE: I think I need to improve how the chart is grabbed here
 		var songItem:SongFormat = SongList.list[playedSongIndex];
+
+		// TODO: This works but maybe make this an inlined
 		var chartItem:ChartFormat = SongList.chartsByName.get(songItem.name).get(songItem.difficulties[diffIndex]);
 
 		var item:Dynamic = null;

@@ -2,6 +2,8 @@ package;
 
 import objects.engine.DebugInfo;
 import flixel.system.FlxBasePreloader;
+import flixel.util.FlxStringUtil;
+import openfl.system.System;
 
 class Preloader extends FlxBasePreloader
 {

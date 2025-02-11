@@ -231,7 +231,7 @@ class Container extends FlxSprite
 	#if FLX_DEBUG
 	var _drawWithPadding:Bool = false;
 
-	override function drawDebugBoundingBox(gfx:Graphics, rect:FlxRect, allowCollisions:Int, partial:Bool)
+	override function drawDebugBoundingBox(gfx:Graphics, rect:FlxRect, allowCollisions:FlxDirectionFlags, partial:Bool)
 	{
 		// Find the color to use
 		var color:Null<Int> = debugBoundingBoxColor;

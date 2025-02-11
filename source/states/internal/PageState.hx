@@ -40,8 +40,6 @@ class PageState extends MainState
 	{
 		super.create();
 
-		Transition.instance.transitionOut();
-		Transition.instance.skipTransition();
 		switchPage(_pageHelper);
 	}
 

@@ -18,12 +18,19 @@ class Main extends DisplayObjectContainer
 	{
 		super();
 
+		backend.engine.external.AudioContextManager.init();
+
 		#if TRACY_ENABLED
 		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (e:openfl.events.Event) ->
 		{
 			cpp.vm.tracy.TracyProfiler.frameMark();
 		});
 		#end
+
+		openfl.Lib.current.stage.addEventListener(openfl.events.Event.EXIT_FRAME, (e:openfl.events.Event) ->
+		{
+			backend.engine.external.AudioContextManager.checkDeviceChange();
+		});
 
 		backend.engine.external.DPIAwareness.registerAsDPICompatible();
 
@@ -47,42 +54,63 @@ class Main extends DisplayObjectContainer
 		{
 			if (FileSystem.isDirectory(path))
 			{
-				for (file in FileSystem.readDirectory(path))
+				var list:Array<String> = [];
+				try
+				{
+					list = FileSystem.readDirectory(path);
+					for (i in 0...list.length)
+					{
+						var item:String = list[i];
+						list[i] = Path.join([path, item]);
+					}
+				}
+				catch (e)
+				{
+					trace(e.message);
+					list = [];
+				}
+
+				FlxG.state.openSubState(new substates.editors.ChartConvertSubstate(list));
+			}
+
+			/*if (FileSystem.isDirectory(path))
+				{
+					for (file in FileSystem.readDirectory(path))
+					{
+						try
+						{
+							var fullPath:String = Path.join([path, file]);
+
+							var data:String = File.getContent(fullPath);
+
+							var newChart = assets.parsers.converters.PsychLatestConverter.fromChart(Json.parse(data));
+
+							FileSystem.createDirectory("temp");
+							FileSystem.createDirectory('temp/${Path.withoutDirectory(path)}');
+							File.saveContent('temp/${Path.withoutDirectory(path)}/${new Path(fullPath).file}.json', Json.stringify(newChart, "\t"));
+						}
+						catch (e)
+						{
+							trace(e.message);
+						}
+					}
+				}
+				else
 				{
 					try
 					{
-						var fullPath:String = Path.join([path, file]);
-
-						var data:String = File.getContent(fullPath);
+						var data:String = File.getContent(path);
 
 						var newChart = assets.parsers.converters.PsychLatestConverter.fromChart(Json.parse(data));
 
 						FileSystem.createDirectory("temp");
-						FileSystem.createDirectory('temp/${Path.withoutDirectory(path)}');
-						File.saveContent('temp/${Path.withoutDirectory(path)}/${new Path(fullPath).file}.json', Json.stringify(newChart, "\t"));
+						File.saveContent('temp/${new Path(path).file}.json', Json.stringify(newChart, "\t"));
 					}
 					catch (e)
 					{
 						trace(e.message);
 					}
-				}
-			}
-			else
-			{
-				try
-				{
-					var data:String = File.getContent(path);
-
-					var newChart = assets.parsers.converters.PsychLatestConverter.fromChart(Json.parse(data));
-
-					FileSystem.createDirectory("temp");
-					File.saveContent('temp/${new Path(path).file}.json', Json.stringify(newChart, "\t"));
-				}
-				catch (e)
-				{
-					trace(e.message);
-				}
-			}
+			}*/
 		});
 		#else
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, (e) ->
